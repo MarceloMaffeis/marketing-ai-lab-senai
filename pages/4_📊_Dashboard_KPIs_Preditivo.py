@@ -8,8 +8,10 @@ import os
 from utils.auth import check_authentication
 from utils.ai_helper import render_api_key_sidebar
 from utils.export_helper import generate_html_report, render_download_button
+from utils.ui_components import render_sidebar_header, render_sidebar_footer, render_academic_footer
 
 st.set_page_config(page_title="KPIs & Análise Preditiva | SENAI", page_icon="📊", layout="wide")
+render_sidebar_header()
 check_authentication()
 render_api_key_sidebar()
 
@@ -30,7 +32,7 @@ with col_data_opt2:
 
 # Carrega dataset
 df = None
-sample_path = "C:/Users/marce/.gemini/antigravity/scratch/marketing_ai_lab/data/campanhas_exemplo.csv"
+sample_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "campanhas_exemplo.csv")
 
 if uploaded_file is not None:
     try:
@@ -42,7 +44,6 @@ elif os.path.exists(sample_path):
     df = pd.read_csv(sample_path)
 
 if df is not None:
-    # Filtros Interativos na barra lateral / topo
     with st.expander("🔍 Filtros de Segmentação e Canais", expanded=False):
         col_f1, col_f2 = st.columns(2)
         with col_f1:
@@ -52,14 +53,12 @@ if df is not None:
             segmentos_disponiveis = df["Segmento"].unique().tolist()
             filtro_segmentos = st.multiselect("Filtrar Segmentos:", segmentos_disponiveis, default=segmentos_disponiveis)
 
-    # Aplicação dos filtros
     df_filtrado = df[df["Canal"].isin(filtro_canais) & df["Segmento"].isin(filtro_segmentos)].copy()
     
     if df_filtrado.empty:
         st.warning("Nenhum dado corresponde aos filtros selecionados.")
         st.stop()
 
-    # Cálculos dos KPIs Agregados
     total_gasto = df_filtrado["Gasto_R$"].sum()
     total_receita = df_filtrado["Receita_R$"].sum()
     total_conversoes = df_filtrado["Conversoes"].sum()
@@ -71,7 +70,6 @@ if df is not None:
     ctr_medio = (total_cliques / total_impressoes * 100) if total_impressoes > 0 else 0
     lucro_liquido = total_receita - total_gasto
 
-    # Linha de Métricas (Cards de KPIs)
     kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
     kpi1.metric("💰 Total Investido", f"R$ {total_gasto:,.2f}")
     kpi2.metric("💵 Receita Gerada", f"R$ {total_receita:,.2f}", f"Lucro: R$ {lucro_liquido:,.2f}")
@@ -81,7 +79,6 @@ if df is not None:
 
     st.markdown("---")
 
-    # Gráficos Visuais
     tab1, tab2, tab3 = st.tabs(["📈 Desempenho por Canal", "🗓️ Evolução Temporal", "🤖 Previsão com Machine Learning"])
 
     with tab1:
@@ -122,7 +119,6 @@ if df is not None:
         st.subheader("🤖 Modelo Preditivo de Vendas e Otimização com IA")
         st.write("Utilizando regressão linear com **Machine Learning (Scikit-Learn)** para prever a receita futura com base em variações de orçamento:")
         
-        # Treinando modelo de regressão linear simples
         X = df_filtrado[["Gasto_R$"]].values
         y = df_filtrado["Receita_R$"].values
         
@@ -143,7 +139,6 @@ if df is not None:
             )
 
         with col_pred2:
-            # Gráfico de dispersão com a linha de regressão
             x_vals = np.linspace(X.min(), X.max() * 1.5, 100).reshape(-1, 1)
             y_vals = modelo.predict(x_vals)
             
@@ -153,7 +148,6 @@ if df is not None:
             fig_ml.update_layout(title="Dispersão Real vs. Curva Preditiva de Aprendizado de Máquina", xaxis_title="Gasto (R$)", yaxis_title="Receita (R$)")
             st.plotly_chart(fig_ml, use_container_width=True)
 
-    # Exportação de Relatório Executivo
     st.markdown("---")
     st.subheader("📥 Exportar Relatório Executivo de BI")
     
@@ -178,3 +172,6 @@ if df is not None:
 
 else:
     st.info("Nenhum dado disponível. Carregue uma base acima.")
+
+render_sidebar_footer()
+render_academic_footer()

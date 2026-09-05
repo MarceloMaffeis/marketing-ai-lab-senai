@@ -3,8 +3,10 @@ import pandas as pd
 from utils.auth import check_authentication
 from utils.ai_helper import render_api_key_sidebar
 from utils.export_helper import generate_html_report, render_download_button
+from utils.ui_components import render_sidebar_header, render_sidebar_footer, render_academic_footer
 
 st.set_page_config(page_title="Recomendação & Neuromarketing | SENAI", page_icon="🛍️", layout="wide")
+render_sidebar_header()
 check_authentication()
 render_api_key_sidebar()
 
@@ -66,7 +68,6 @@ if "Filtragem Baseada em Conteúdo" in algoritmo:
         produtos_exibidos.sort(key=lambda x: ("carreira" in x["tags"], "consultoria" in x["tags"]), reverse=True)
 
 elif "Filtragem Colaborativa" in algoritmo:
-    # Simula quem viu o produto 1 (IA) ou produto 3 (Automação)
     if "Inteligência Artificial" in perfil:
         itens_prioritarios = [1, 4, 3, 2, 5, 6]
     elif "Gestor de Vendas" in perfil:
@@ -80,7 +81,7 @@ elif "Filtragem Colaborativa" in algoritmo:
 # Cálculo do impacto na taxa de conversão simulada
 cvr_base = 1.8
 if "Filtragem" in algoritmo:
-    cvr_base += 1.4 # +1.4% por recomendação precisa
+    cvr_base += 1.4
 if g_escassez:
     cvr_base += 0.6
 if g_urgencia:
@@ -93,7 +94,6 @@ if g_ancoragem:
 with col_store:
     st.subheader("🛒 Vitrine Personalizada da Loja / Portal")
     
-    # Impacto no Negócio
     m1, m2, m3 = st.columns(3)
     m1.metric("Taxa de Conversão Prevista", f"{cvr_base:.1f}%", f"+{cvr_base - 1.8:.1f}% com Otimizações")
     m2.metric("Aumento no Ticket Médio", "+28%", "Cross-sell Inteligente")
@@ -104,7 +104,6 @@ with col_store:
         
     st.write("")
     
-    # Renderização dos Cards de Produtos
     cols_grid = st.columns(2)
     for idx, prod in enumerate(produtos_exibidos[:4]):
         with cols_grid[idx % 2]:
@@ -112,17 +111,14 @@ with col_store:
                 st.markdown(f"**{prod['nome']}**")
                 st.caption(f"Categoria: `{prod['cat']}` • Tags: `{', '.join(prod['tags'])}`")
                 
-                # Ancoragem de Preço
                 if g_ancoragem:
                     st.markdown(f"<span style='text-decoration: line-through; color: #94a3b8;'>De R$ {prod['preco_original']:.2f}</span> por <strong style='font-size: 1.3rem; color: #38bdf8;'>R$ {prod['preco_promo']:.2f}</strong>", unsafe_allow_html=True)
                 else:
                     st.markdown(f"<strong style='font-size: 1.3rem; color: #38bdf8;'>R$ {prod['preco_promo']:.2f}</strong>", unsafe_allow_html=True)
                 
-                # Prova Social
                 if g_social:
                     st.caption(f"👥 **{prod['vendas_dia']} pessoas** se matricularam hoje nas últimas horas.")
                     
-                # Escassez
                 if g_escassez:
                     st.error("⚠️ Restam apenas **3 vagas/licenças** com este valor.")
                     
@@ -130,7 +126,6 @@ with col_store:
                     st.balloons()
                     st.success(f"🎉 Conversão registrada com sucesso para o item '{prod['nome']}'!")
 
-    # Seção de Exportação
     st.markdown("---")
     secoes_ux = [
         ("1. Diagnóstico de Personalização de UX", f"<p><strong>Perfil Testado:</strong> {perfil}<br><strong>Algoritmo Selecionado:</strong> {algoritmo}</p>"),
@@ -150,3 +145,6 @@ with col_store:
         file_name="analise_ux_neuromarketing_ia.html",
         mime="text/html"
     )
+
+render_sidebar_footer()
+render_academic_footer()

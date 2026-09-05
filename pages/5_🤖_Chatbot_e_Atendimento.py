@@ -2,8 +2,10 @@ import streamlit as st
 from utils.auth import check_authentication
 from utils.ai_helper import render_api_key_sidebar, generate_text_ai
 from utils.export_helper import generate_html_report, render_download_button
+from utils.ui_components import render_sidebar_header, render_sidebar_footer, render_academic_footer
 
 st.set_page_config(page_title="Chatbot & Automação | SENAI", page_icon="🤖", layout="wide")
+render_sidebar_header()
 check_authentication()
 render_api_key_sidebar()
 
@@ -37,7 +39,6 @@ with col_config:
     st.markdown("---")
     st.subheader("🎯 2. Termômetro de Lead Scoring")
     
-    # Análise de intenção baseada no histórico de mensagens
     historico_texto = " ".join([m["content"] for m in st.session_state["chat_messages"] if m["role"] == "user"]).lower()
     
     score = 10
@@ -66,21 +67,17 @@ with col_config:
 with col_chat:
     st.subheader(f"💬 Simulador de Atendimento ao Vivo • {nome_bot}")
     
-    # Renderiza mensagens anteriores
     for msg in st.session_state["chat_messages"]:
         with st.chat_message(msg["role"]):
             st.write(msg["content"])
             
-    # Entrada do usuário (aluno fingindo ser cliente)
     user_input = st.chat_input("Digite sua mensagem para testar o assistente (ex: Qual o valor do curso?)...")
     
     if user_input:
-        # Registra mensagem do usuário
         st.session_state["chat_messages"].append({"role": "user", "content": user_input})
         with st.chat_message("user"):
             st.write(user_input)
             
-        # Gera resposta do bot
         with st.chat_message("assistant"):
             with st.spinner(f"{nome_bot} está digitando..."):
                 system_instruction = f"""
@@ -97,7 +94,6 @@ with col_chat:
                 
                 resposta = generate_text_ai(user_input, system_instruction)
                 
-                # Fallback heurístico offline
                 if not resposta:
                     u_lower = user_input.lower()
                     if any(w in u_lower for w in ["preco", "preço", "valor", "custa", "investimento"]):
@@ -117,7 +113,6 @@ with col_chat:
                 st.session_state["chat_messages"].append({"role": "assistant", "content": resposta})
                 st.rerun()
 
-    # Seção de Exportação da Transcrição
     st.markdown("---")
     st.subheader("📥 Exportar Transcrição do Atendimento")
     
@@ -145,3 +140,6 @@ with col_chat:
         file_name=f"transcricao_chatbot_{nome_bot.lower()}.html",
         mime="text/html"
     )
+
+render_sidebar_footer()
+render_academic_footer()

@@ -2,8 +2,10 @@ import streamlit as st
 from utils.auth import check_authentication
 from utils.ai_helper import render_api_key_sidebar, generate_text_ai, generate_copy_offline, analyze_ethics_offline
 from utils.export_helper import generate_html_report, render_download_button
+from utils.ui_components import render_sidebar_header, render_sidebar_footer, render_academic_footer
 
 st.set_page_config(page_title="Copywriting & Criação com IA | SENAI", page_icon="✍️", layout="wide")
+render_sidebar_header()
 check_authentication()
 render_api_key_sidebar()
 
@@ -40,7 +42,6 @@ if btn_gerar:
         with st.spinner("A Inteligência Artificial está estruturando o criativo..."):
             fw_tipo = "AIDA" if "AIDA" in framework else "PAS"
             
-            # Prompt para LLM (caso API key esteja presente)
             system_prompt = (
                 "Você é um especialista sênior em Marketing Digital, Copywriting e Publicidade com Inteligência Artificial. "
                 "Responda sempre em português claro, profissional e persuasivo, formatado em Markdown."
@@ -64,7 +65,6 @@ if btn_gerar:
             
             texto_ia = generate_text_ai(user_prompt, system_prompt)
             
-            # Se não houver LLM conectada, usa o gerador estruturado offline
             if not texto_ia:
                 copy_dados = generate_copy_offline(produto, publico, objetivo, tom, fw_tipo)
                 
@@ -113,10 +113,8 @@ if btn_gerar:
             else:
                 copy_formatada = texto_ia
 
-            # Exibe a copy formatada
             st.markdown(copy_formatada)
             
-            # Análise de Ética e LGPD
             st.markdown("---")
             st.subheader("🛡️ Scanner de Ética, LGPD & Boas Práticas")
             analise_etica = analyze_ethics_offline(copy_formatada)
@@ -128,7 +126,6 @@ if btn_gerar:
                 for alerta in analise_etica['alertas']:
                     st.write(alerta)
             
-            # Exportação de Relatório para Levar para Casa
             st.markdown("---")
             st.subheader("📥 Leve seu Projeto para Casa")
             
@@ -153,3 +150,6 @@ if btn_gerar:
 else:
     with col_result:
         st.info("👈 Preencha os campos ao lado e clique em **Gerar Campanha & Analisar com IA** para visualizar a copy estruturada, os prompts visuais e a auditoria de conformidade.")
+
+render_sidebar_footer()
+render_academic_footer()

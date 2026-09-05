@@ -6,8 +6,10 @@ import plotly.graph_objects as go
 from utils.auth import check_authentication
 from utils.ai_helper import render_api_key_sidebar
 from utils.export_helper import generate_html_report, render_download_button
+from utils.ui_components import render_sidebar_header, render_sidebar_footer, render_academic_footer
 
 st.set_page_config(page_title="Simulador de Programática & RTB | SENAI", page_icon="🎯", layout="wide")
+render_sidebar_header()
 check_authentication()
 render_api_key_sidebar()
 
@@ -63,10 +65,8 @@ if btn_simular:
     with col_sim:
         st.subheader("📊 Resultados da Simulação em Tempo Real")
         
-        # Fatores base de acordo com as escolhas
         is_ai = "Smart Bidding" in tipo_estrategia
         
-        # Multiplicadores de eficiência
         fator_seg = {
             "Público Lookalike (Semelhante) gerado por IA": 1.45,
             "Segmentação Demográfica + Interesses de Mercado": 1.15,
@@ -79,14 +79,12 @@ if btn_simular:
         cvr_base = 2.0
         
         if is_ai:
-            # Smart Bidding melhora a taxa de conversão e o aproveitamento do orçamento
             cpm_efetivo = cpm_base * 1.10
             ctr_efetivo = ctr_base * fator_seg * 1.25
             cvr_efetivo = cvr_base * fator_seg * 1.40
             leiloes_disputados = int(orcamento * 80)
             taxa_vitoria = 0.68
         else:
-            # Lance manual sofre com dispersão e lances ineficientes
             cpm_efetivo = cpm_base * 0.95
             ctr_efetivo = ctr_base * fator_seg * 0.85
             cvr_efetivo = cvr_base * fator_seg * 0.80
@@ -104,14 +102,12 @@ if btn_simular:
         receita_estimada = round(conversoes * ticket_medio, 2)
         roas = round(receita_estimada / orcamento, 2)
         
-        # Métricas em Cards
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("👁️ Impressões Ganhas", f"{impressoes:,}".replace(",", "."))
         m2.metric("🖱️ Cliques (CTR)", f"{cliques:,} ({ctr_efetivo:.2f}%)")
         m3.metric("🎯 Conversões (CPA)", f"{conversoes} (R$ {cpa})")
         m4.metric("📈 ROAS Estimado", f"{roas:.2f}x", f"R$ {receita_estimada:,.2f}")
         
-        # Gráfico do Funil de Conversão
         funil_df = pd.DataFrame({
             "Etapa": ["1. Leilões Disputados", "2. Impressões Ganhas", "3. Cliques Qualificados", "4. Conversões"],
             "Volume": [leiloes_disputados, impressoes, cliques, conversoes]
@@ -126,7 +122,6 @@ if btn_simular:
         fig_funnel.update_layout(title="📉 Funil de Eficiência do Leilão Programático", margin=dict(l=20, r=20, t=40, b=20), height=320)
         st.plotly_chart(fig_funnel, use_container_width=True)
         
-        # Análise Comparativa: IA vs Manual
         st.subheader("💡 Diagnóstico do Algoritmo")
         if is_ai:
             st.success(
@@ -137,7 +132,6 @@ if btn_simular:
                 f"⚠️ **Atenção (Lance Manual):** Como os lances foram fixos, a campanha comprou impressões em horários e usuários sem intenção de compra, resultando em menor taxa de vitória no leilão e CPA mais alto (**R$ {cpa}**)."
             )
             
-        # Exportação de Relatório de Mídia
         st.markdown("---")
         secoes_midia = [
             ("1. Resumo do Plano de Mídia Programática", f"<p><strong>Orçamento Diário:</strong> R$ {orcamento:,.2f}<br><strong>Estratégia:</strong> {tipo_estrategia}<br><strong>Segmentação:</strong> {segmentacao}<br><strong>Formato:</strong> {formato}</p>"),
@@ -160,3 +154,6 @@ if btn_simular:
 else:
     with col_sim:
         st.info("👈 Ajuste o orçamento, a estratégia de lances e clique em **Executar Simulação de Leilão RTB** para ver o funil e a eficiência dos algoritmos de IA.")
+
+render_sidebar_footer()
+render_academic_footer()
