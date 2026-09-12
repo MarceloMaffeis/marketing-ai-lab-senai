@@ -47,16 +47,24 @@ def generate_text_ai(prompt: str, system_instruction: str = "", chat_history: li
     if not api_key:
         return None
 
-    models_to_try = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"]
+    models_to_try = [
+        "gemini-flash-latest",
+        "gemini-flash-lite-latest",
+        "gemini-3.5-flash-lite",
+        "gemini-3.1-flash-lite",
+        "gemini-2.5-flash",
+        "gemini-1.5-flash"
+    ]
     
-    dialogo_formatado = ""
-    if chat_history and len(chat_history) > 1:
-        dialogo_formatado = "\n--- HISTÓRICO DA CONVERSA ANTERIOR ---\n"
-        for msg in chat_history[:-1]:
-            autor = "Cliente" if msg.get("role") == "user" else "Assistente"
-            dialogo_formatado += f"{autor}: {msg.get('content', '')}\n"
+    if chat_history is not None:
+        dialogo_formatado = ""
+        if len(chat_history) > 1:
+            dialogo_formatado = "\n--- HISTÓRICO DA CONVERSA ANTERIOR ---\n"
+            for msg in chat_history[:-1]:
+                autor = "Cliente" if msg.get("role") == "user" else "Assistente"
+                dialogo_formatado += f"{autor}: {msg.get('content', '')}\n"
 
-    prompt_completo = f"""[DIRETRIZES DE PERSONA E REGRAS DE ATENDIMENTO]
+        prompt_completo = f"""[DIRETRIZES DE PERSONA E REGRAS DE ATENDIMENTO]
 {system_instruction}
 
 {dialogo_formatado}
@@ -64,6 +72,9 @@ def generate_text_ai(prompt: str, system_instruction: str = "", chat_history: li
 Cliente: {prompt}
 
 Responda agora como a Persona, de forma extremamente humana, acolhedora, sensível ao sentimento do cliente (se ele recusar ou não quiser, respeite e trate a objeção; NUNCA force matrícula se ele disser que não quer):"""
+    else:
+        instrucao_bloco = f"[DIRETRIZES DO ESPECIALISTA SENAI]\n{system_instruction}\n\n" if system_instruction else ""
+        prompt_completo = f"{instrucao_bloco}{prompt}"
 
     payload = {
         "contents": [
@@ -73,7 +84,7 @@ Responda agora como a Persona, de forma extremamente humana, acolhedora, sensív
         ],
         "generationConfig": {
             "temperature": 0.7,
-            "maxOutputTokens": 600,
+            "maxOutputTokens": 800,
             "topP": 0.95
         }
     }
@@ -86,7 +97,7 @@ Responda agora como a Persona, de forma extremamente humana, acolhedora, sensív
                 url,
                 json=payload,
                 headers={"Content-Type": "application/json"},
-                timeout=10
+                timeout=12
             )
             
             if resp.status_code == 200:
@@ -96,11 +107,6 @@ Responda agora como a Persona, de forma extremamente humana, acolhedora, sensív
                     parts = candidates[0].get("content", {}).get("parts", [])
                     if parts and "text" in parts[0]:
                         return parts[0]["text"].strip()
-            else:
-                err = resp.json().get("error", {})
-                err_msg = err.get("message", f"HTTP {resp.status_code}")
-                # Exibe aviso discreto se houver erro de cota ou chave inválida
-                st.toast(f"⚠️ Gemini API ({model_name}): {err_msg}", icon="⚠️")
         except Exception:
             continue
 
