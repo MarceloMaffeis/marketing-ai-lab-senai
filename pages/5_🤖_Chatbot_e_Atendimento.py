@@ -22,7 +22,7 @@ st.caption("Alinhado ao **Módulo 1 da Ementa SENAI**: Automação de marketing,
 # Inicialização do histórico do chat na sessão
 if "chat_messages" not in st.session_state:
     st.session_state["chat_messages"] = [
-        {"role": "assistant", "content": "Olá! 👋 Sou o assistente virtual inteligente da empresa. Como posso ajudar você hoje?"}
+        {"role": "assistant", "content": "Olá! 👋 Sou o assistente virtual da instituição. Como posso ajudar você hoje?"}
     ]
 
 col_config, col_chat = st.columns([1, 2], gap="large")
@@ -30,7 +30,7 @@ col_config, col_chat = st.columns([1, 2], gap="large")
 with col_config:
     st.subheader("⚙️ 1. Configurar Assistente")
     nome_bot = st.text_input("Nome do Assistente:", value="Sofia", placeholder="Ex: Lucas, Sofia, Ana...")
-    empresa = st.text_input("Nome da Empresa / Escola:", value="Escola SENAI de Tecnologia", placeholder="Ex: Tech Store, Barbearia Silva...")
+    empresa = st.text_input("Nome da Empresa / Escola:", value="Escola SENAI Sorocaba", placeholder="Ex: Tech Store, Barbearia Silva...")
     
     tom_bot = st.selectbox(
         "Tom de Voz do Atendimento:",
@@ -59,11 +59,11 @@ with col_config:
     score = min(score, 100)
     
     if score >= 75:
-        st.success(f"🔥 **Lead Quente (Score: {score}/100)**: Alta intenção de compra identificada! Encaminhar para vendedor humano.")
+        st.success(f"🔥 **Lead Quente (Score: {score}/100)**: Alta intenção de compra identificada! Encaminhar para consultor humano.")
     elif score >= 40:
-        st.warning(f"⛅ **Lead Morno (Score: {score}/100)**: Tirando dúvidas de produto e valores.")
+        st.warning(f"⛅ **Lead Morno (Score: {score}/100)**: Tirando dúvidas de cursos, horários e valores.")
     else:
-        st.info(f"❄️ **Lead Frio (Score: {score}/100)**: Apenas iniciando o contato inicial.")
+        st.info(f"❄️ **Lead Frio (Score: {score}/100)**: Primeiro contato ou pesquisa inicial.")
         
     if st.button("🧹 Limpar e Reiniciar Chat", use_container_width=True):
         st.session_state["chat_messages"] = [
@@ -78,7 +78,7 @@ with col_chat:
         with st.chat_message(msg["role"]):
             st.write(msg["content"])
             
-    user_input = st.chat_input("Digite sua mensagem para testar o assistente (ex: Qual o valor do curso?)...")
+    user_input = st.chat_input("Digite sua mensagem para testar o assistente...")
     
     if user_input:
         st.session_state["chat_messages"].append({"role": "user", "content": user_input})
@@ -88,19 +88,28 @@ with col_chat:
         with st.chat_message("assistant"):
             with st.spinner(f"{nome_bot} está digitando..."):
                 system_instruction = f"""
-                Você é {nome_bot}, assistente virtual de atendimento e vendas da empresa '{empresa}'.
-                Seu tom de voz é: {tom_bot}.
-                Use a seguinte base de conhecimento para responder às perguntas do cliente de forma precisa, cordial e focada em conversão:
+                Você é {nome_bot}, atendente e consultor(a) virtual da {empresa}.
+                Seu objetivo é atender o cliente de forma extremamente natural, humana, acolhedora e precisa, tirando dúvidas e conduzindo para a matrícula/conversão.
+                
+                Diretrizes de Personalidade e Tom:
+                - Tom de voz: {tom_bot}.
+                - Responda em português brasileiro fluído, profissional e simpático.
+                - Use emojis com moderação para manter a conversa agradável.
+                - NUNCA dê respostas repetitivas ou pareça um robô mecânico.
+                - Base de Informações da Empresa:
                 {faq_conhecimento}
                 
-                Instruções:
-                1. Seja conciso, amigável e persuasivo (máximo 3 a 4 frases).
-                2. Adapte a resposta de acordo com a pergunta exata do cliente e o histórico da conversa.
-                3. Sempre que o cliente demonstrar interesse, convide-o a deixar o nome e WhatsApp para concluir a inscrição ou receber material.
-                4. Se não souber responder com base no FAQ, seja educado e solicite o contato para um consultor entrar em contato.
+                Regras de Negócio:
+                1. Se o cliente perguntar sobre algo que está no FAQ (ex: curso de Marketing com IA, preço, turmas), explique com entusiasmo e clareza.
+                2. Se o cliente perguntar sobre cursos ou produtos que NÃO estão no FAQ (ex: solda, CNC, culinária), explique educadamente que no momento as turmas abertas são as listadas no FAQ e ofereça detalhes das opções disponíveis.
+                3. Sempre que o cliente demonstrar interesse em valores ou vagas, convide-o gentilmente a informar o Nome e WhatsApp para formalizar a matrícula com condições especiais.
                 """
                 
-                resposta = generate_text_ai(user_input, system_instruction, chat_history=st.session_state["chat_messages"])
+                resposta = generate_text_ai(
+                    prompt=user_input,
+                    system_instruction=system_instruction,
+                    chat_history=st.session_state["chat_messages"]
+                )
                 
                 if not resposta:
                     resposta = generate_chatbot_offline_reply(
@@ -108,6 +117,7 @@ with col_chat:
                         empresa=empresa,
                         nome_bot=nome_bot,
                         tom_bot=tom_bot,
+                        faq_conhecimento=faq_conhecimento,
                         history=st.session_state["chat_messages"]
                     )
 
