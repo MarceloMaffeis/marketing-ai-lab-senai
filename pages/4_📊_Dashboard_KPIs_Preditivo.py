@@ -1,10 +1,16 @@
+import sys
+import os
+
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.linear_model import LinearRegression
-import os
 from utils.auth import check_authentication
 from utils.ai_helper import render_api_key_sidebar
 from utils.export_helper import generate_html_report, render_download_button
@@ -20,7 +26,6 @@ st.caption("Alinhado aos **Módulos 2 e 6 da Ementa SENAI**: Análise de dados, 
 
 st.markdown("---")
 
-# Seção de Carregamento de Dados
 col_data_opt1, col_data_opt2 = st.columns([2, 1])
 
 with col_data_opt1:
@@ -30,9 +35,8 @@ with col_data_opt2:
     st.write("Ou utilize nossa base pedagógica de testes:")
     use_sample = st.button("📊 Carregar Base de Exemplo SENAI", use_container_width=True)
 
-# Carrega dataset
 df = None
-sample_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "campanhas_exemplo.csv")
+sample_path = os.path.join(ROOT_DIR, "data", "campanhas_exemplo.csv")
 
 if uploaded_file is not None:
     try:
