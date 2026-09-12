@@ -7,7 +7,7 @@ if ROOT_DIR not in sys.path:
 
 import streamlit as st
 from utils.auth import check_authentication
-from utils.ai_helper import render_api_key_sidebar, generate_text_ai, generate_chatbot_offline_reply
+from utils.ai_helper import render_api_key_sidebar, generate_text_ai, generate_chatbot_offline_reply, get_api_key
 from utils.export_helper import generate_html_report, render_download_button
 from utils.ui_components import render_sidebar_header, render_sidebar_footer, render_academic_footer
 
@@ -40,30 +40,59 @@ with col_config:
     faq_conhecimento = st.text_area(
         "Base de Conhecimento / FAQ da Empresa:",
         value="• Cursos disponíveis: Marketing Digital com IA (30h) e Automação Industrial.\n• Investimento: R$ 490,00 ou 10x sem juros no cartão.\n• Início das aulas: Próxima segunda-feira às 19h.\n• Certificado oficial emitido ao final.",
-        height=130
+        height=120
     )
     
     st.markdown("---")
-    st.subheader("🎯 2. Termômetro de Lead Scoring")
+    st.subheader("🎯 2. Termômetro de Lead Scoring (IA)")
     
-    historico_texto = " ".join([m["content"] for m in st.session_state["chat_messages"] if m["role"] == "user"]).lower()
+    # -------------------------------------------------------------
+    # CÁLCULO DINÂMICO DE LEAD SCORING DIDÁTICO (PADRÃO HUBSPOT / RD STATION)
+    # -------------------------------------------------------------
+    user_msgs = [m["content"] for m in st.session_state["chat_messages"] if m["role"] == "user"]
+    historico_texto = " ".join(user_msgs).lower()
     
-    score = 10
-    if any(w in historico_texto for w in ["preco", "preço", "quanto", "pagamento", "cartao", "cartão", "parcela", "desconto"]):
-        score += 40
-    if any(w in historico_texto for w in ["inscricao", "inscrição", "matricula", "matrícula", "comprar", "quero", "fechar"]):
-        score += 35
-    if any(w in historico_texto for w in ["whatsapp", "fone", "telefone", "email", "@", "contato"]):
-        score += 25
+    # Critérios de pontuação
+    pontos_engajamento = 0
+    pontos_interesse = 0
+    pontos_comercial = 0
+    pontos_conversao = 0
+    
+    # 1. Engajamento pela profundidade da conversa
+    if len(user_msgs) >= 1:
+        pontos_engajamento += 15
+    if len(user_msgs) >= 3:
+        pontos_engajamento += 15
         
-    score = min(score, 100)
+    # 2. Interesse em Conteúdo, Grade e Horários
+    if any(w in historico_texto for w in ["curso", "cursos", "marketing", "ia", "automacao", "automação", "grade", "ementa", "aprender", "horario", "horário", "segunda", "noite", "aulas", "quando"]):
+        pontos_interesse = 25
+        
+    # 3. Interesse Comercial / Valores / Pagamento
+    if any(w in historico_texto for w in ["preco", "preço", "valor", "custa", "quanto", "pagamento", "cartao", "cartão", "parcela", "desconto", "investimento", "pix"]):
+        pontos_comercial = 25
+        
+    # 4. Intenção de Fechamento / Envio de Dados de Contato
+    if any(w in historico_texto for w in ["sim", "quero", "matricula", "matrícula", "inscrever", "fechar", "comprar", "vaga"]) or "@" in historico_texto or any(char.isdigit() for char in historico_texto):
+        pontos_conversao = 25
+        
+    score_total = min(100, pontos_engajamento + pontos_interesse + pontos_comercial + pontos_conversao)
     
-    if score >= 75:
-        st.success(f"🔥 **Lead Quente (Score: {score}/100)**: Alta intenção de compra identificada! Encaminhar para consultor humano.")
-    elif score >= 40:
-        st.warning(f"⛅ **Lead Morno (Score: {score}/100)**: Tirando dúvidas de cursos, horários e valores.")
+    # Exibição da Barra de Progresso do Lead Scoring
+    st.progress(score_total / 100)
+    
+    if score_total >= 75:
+        st.success(f"🔥 **Lead Quente / SQL ({score_total}/100)**: Alta intenção de matrícula! Encaminhar imediatamente para um consultor humano.")
+    elif score_total >= 40:
+        st.warning(f"🌤️ **Lead Morno / MQL ({score_total}/100)**: Cliente engajado pesquisando horários, conteúdo e valores.")
     else:
-        st.info(f"❄️ **Lead Frio (Score: {score}/100)**: Primeiro contato ou pesquisa inicial.")
+        st.info(f"❄️ **Lead Frio ({score_total}/100)**: Primeiro contato ou pesquisa inicial de curiosidade.")
+        
+    with st.expander("📊 Critérios de Pontuação Ativos"):
+        st.write(f"• **Engajamento na Conversa:** {'✅ +' if pontos_engajamento > 0 else '⏳ '}{pontos_engajamento} pts ({len(user_msgs)} msgs)")
+        st.write(f"• **Interesse em Cursos & Horários:** {'✅ +' if pontos_interesse > 0 else '⏳ '}{pontos_interesse} pts")
+        st.write(f"• **Sondagem de Preço & Pagamento:** {'✅ +' if pontos_comercial > 0 else '⏳ '}{pontos_comercial} pts")
+        st.write(f"• **Intenção de Matrícula & Contato:** {'✅ +' if pontos_conversao > 0 else '⏳ '}{pontos_conversao} pts")
         
     if st.button("🧹 Limpar e Reiniciar Chat", use_container_width=True):
         st.session_state["chat_messages"] = [
@@ -72,7 +101,9 @@ with col_config:
         st.rerun()
 
 with col_chat:
+    status_ia = "🟢 Conectado ao Google Gemini" if get_api_key() else "⚡ Modo Inteligente Offline"
     st.subheader(f"💬 Simulador de Atendimento ao Vivo • {nome_bot}")
+    st.caption(f"Status da IA: **{status_ia}** | Empresa: **{empresa}**")
     
     for msg in st.session_state["chat_messages"]:
         with st.chat_message(msg["role"]):
@@ -88,21 +119,17 @@ with col_chat:
         with st.chat_message("assistant"):
             with st.spinner(f"{nome_bot} está digitando..."):
                 system_instruction = f"""
-                Você é {nome_bot}, atendente e consultor(a) virtual da {empresa}.
-                Seu objetivo é atender o cliente de forma extremamente natural, humana, acolhedora e precisa, tirando dúvidas e conduzindo para a matrícula/conversão.
+                Você é {nome_bot}, consultor(a) e atendente de relacionamento da {empresa}.
+                Você atende clientes de forma 100% humanizada, empática, inteligente e conversacional (sem respostas prontas ou robóticas).
                 
-                Diretrizes de Personalidade e Tom:
-                - Tom de voz: {tom_bot}.
-                - Responda em português brasileiro fluído, profissional e simpático.
-                - Use emojis com moderação para manter a conversa agradável.
-                - NUNCA dê respostas repetitivas ou pareça um robô mecânico.
-                - Base de Informações da Empresa:
+                Instruções de Comportamento:
+                1. Tom de voz: {tom_bot}.
+                2. Use o FAQ abaixo como base de conhecimento real:
                 {faq_conhecimento}
-                
-                Regras de Negócio:
-                1. Se o cliente perguntar sobre algo que está no FAQ (ex: curso de Marketing com IA, preço, turmas), explique com entusiasmo e clareza.
-                2. Se o cliente perguntar sobre cursos ou produtos que NÃO estão no FAQ (ex: solda, CNC, culinária), explique educadamente que no momento as turmas abertas são as listadas no FAQ e ofereça detalhes das opções disponíveis.
-                3. Sempre que o cliente demonstrar interesse em valores ou vagas, convide-o gentilmente a informar o Nome e WhatsApp para formalizar a matrícula com condições especiais.
+                3. Responda diretamente ao que o cliente acabou de perguntar de forma clara e objetiva (máximo 2 a 3 frases).
+                4. Se o cliente perguntar sobre cursos fora do FAQ (ex: CNC, solda, etc.), informe com simpatia que no momento as turmas abertas são as do FAQ e ofereça o conteúdo disponível.
+                5. Se o cliente perguntar de dias, horários ou valores, use exatamente os dados do FAQ com entusiasmo.
+                6. Quando o cliente demonstrar intenção positiva, convide-o a enviar o Nome e WhatsApp para formalizar a reserva.
                 """
                 
                 resposta = generate_text_ai(
@@ -134,10 +161,12 @@ with col_chat:
         transcricao_html += f"<p>{autor} {m['content']}</p>"
     transcricao_html += "</div>"
     
+    lead_status_nome = 'Lead Quente (SQL)' if score_total >= 75 else 'Lead Morno (MQL)' if score_total >= 40 else 'Lead Frio'
+    
     secoes_chat = [
         ("1. Perfil do Assistente Configurado", f"<p><strong>Nome:</strong> {nome_bot}<br><strong>Empresa:</strong> {empresa}<br><strong>Tom de Voz:</strong> {tom_bot}</p>"),
         ("2. Transcrição Completa da Conversa", transcricao_html),
-        ("3. Avaliação de Qualificação de Lead", f"<p><strong>Lead Score Final:</strong> {score}/100 ({'Quente' if score >= 75 else 'Morno' if score >= 40 else 'Frio'})</p>")
+        ("3. Avaliação de Qualificação de Lead (Lead Scoring)", f"<p><strong>Pontuação Final:</strong> {score_total}/100 ({lead_status_nome})</p><ul><li>Engajamento: {pontos_engajamento} pts</li><li>Interesse em Conteúdo: {pontos_interesse} pts</li><li>Sondagem de Valores: {pontos_comercial} pts</li><li>Intenção de Matrícula: {pontos_conversao} pts</li></ul>")
     ]
     
     html_chat = generate_html_report(
