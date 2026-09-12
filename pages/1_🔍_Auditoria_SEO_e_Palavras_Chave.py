@@ -532,7 +532,7 @@ def render_serp_preview(title, url, description):
 
 # --- CABEÇALHO DA PÁGINA ---
 st.title("🔍 Auditoria de SEO, GEO & Geomarketing")
-st.caption("Alinhado aos **Módulos 1 e 5 da Ementa SENAI**: SEO Técnico On-Page, **GEO** (*Generative Engine Optimization* para ChatGPT/Perplexity/Gemini) e **Geomarketing & SEO Local** (*Google Meu Negócio* e Schema *LocalBusiness*).")
+st.caption("Alinhado ao **Módulo 1 da Ementa SENAI**: Fundamentos do Marketing Digital, Tráfego Orgânico, SEO On-Page, **GEO** (*Generative Engine Optimization* para ChatGPT/Perplexity), **Geomarketing & SEO Local** e **Pesquisa de Palavras-Chave & Cauda Longa**.")
 
 st.markdown("---")
 
@@ -630,12 +630,13 @@ if run_audit or "last_audit_data" in st.session_state:
     st.success(f"✅ Auditoria ativa para **{main_domain}** ({len(main_df)} páginas analisadas)!")
 
     # --- NAVEGAÇÃO POR ABAS EXPANDIDA COM OS 2 PILARES DE GEO ---
-    tab_client, tab_actions, tab_ai, tab_geo_ai, tab_geomarketing, tab_tech, tab_comp = st.tabs([
+    tab_client, tab_actions, tab_ai, tab_geo_ai, tab_geomarketing, tab_keywords, tab_tech, tab_comp = st.tabs([
         "📊 Visão Executiva (Dashboard)",
         "🎯 Plano de Ação Priorizado",
         "🤖 Diagnóstico com IA",
         "⚡ GEO: Otimização para IA Search",
         "📍 GEO: Geomarketing & SEO Local",
+        "🔑 Palavras-Chave & Cauda Longa",
         "🛠️ Auditoria Técnica Detalhada",
         "🏆 Benchmarking Competitivo"
     ])
@@ -1041,8 +1042,99 @@ A personalização em escala industrial com controle de qualidade digital e praz
             fig_funnel_geo.update_layout(title="Funil de Conversão Geográfico (Geofencing)", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='#cbd5e1'), height=350)
             st.plotly_chart(fig_funnel_geo, use_container_width=True)
 
+
     # ==========================================
-    # --- ABA 6: AUDITORIA TÉCNICA DETALHADA ---
+    # --- ABA 6: PALAVRAS-CHAVE & CAUDA LONGA ---
+    # ==========================================
+    with tab_keywords:
+        st.subheader("🔑 Pesquisa de Palavras-Chave & Cauda Longa (SEO & GEO)")
+        st.caption("Aprenda a mapear a **intenção de busca do usuário** (*Search Intent*) e explorar termos de **Cauda Longa (Long-Tail)** para vencer a concorrência no Google e ser citado no ChatGPT/Perplexity.")
+        
+        with st.expander("📖 Entenda: Cauda Curta (*Head Tail*) vs. Cauda Longa (*Long Tail*)", expanded=False):
+            st.markdown("""
+            * **Head Tail (Cauda Curta):** Termos genéricos (1 a 2 palavras) com altíssimo volume de busca e concorrência gigantesca (ex: *'curso'*, *'marketing'*). Dificuldade alta e conversão baixa.
+            * **Middle Tail (Cauda Média):** Termos intermediários (2 a 3 palavras), ex: *'curso de marketing digital'*.
+            * **Long Tail (Cauda Longa):** Frases específicas (3 a 6 palavras) que representam a dor exata ou momento de compra do cliente (ex: *'curso de marketing digital com ia aos sábados em sp'*). Menor concorrência e **taxa de conversão até 3x maior**.
+            * **GEO Prompts (Busca Conversacional por IA):** Perguntas completas feitas ao ChatGPT, Gemini e Perplexity (ex: *'qual a melhor escola técnica para aprender inteligência artificial no marketing?'*).
+            """)
+
+        col_kw1, col_kw2 = st.columns([2, 1])
+        with col_kw1:
+            kw_product = st.text_input("📦 Produto / Serviço da Empresa:", value="Curso de Marketing Digital com Inteligência Artificial")
+            kw_niche = st.text_input("🎯 Nicho / Segmento de Atuação:", value="Educação Profissional & Tecnologia")
+        with col_kw2:
+            kw_location = st.text_input("📍 Praça / Região Geográfica:", value="São Paulo / Brasil")
+            btn_generate_keywords = st.button("✨ Gerar Matriz de Palavras-Chave & Cauda Longa com IA", type="primary", use_container_width=True)
+
+        if btn_generate_keywords or "cached_keywords_matrix" in st.session_state:
+            if btn_generate_keywords:
+                prompt_kw = f"""
+                Você é o maior especialista em SEO, Pesquisa de Palavras-Chave e GEO (Generative Engine Optimization) do SENAI-SP.
+                Analise o produto: '{kw_product}', Nicho: '{kw_niche}', Região: '{kw_location}'.
+
+                Gere uma pesquisa estratégica completa estruturada em 3 blocos:
+                
+                BLOCO 1: MATRIZ DE PALAVRAS-CHAVE (Tabela em Markdown com colunas: Tipo [Head Tail / Middle Tail / Long Tail], Palavra-Chave, Intenção de Busca [Informacional / Comercial / Transacional], Volume Estimado [Alto/Médio/Nicho], Dificuldade de Ranqueamento [Alta/Média/Baixa]). Forneça 6 termos representativos.
+                
+                BLOCO 2: TOPIC CLUSTERING (Arquitetura de Conteúdo: Defina 1 Pillar Page e 4 Cluster Subtopics recomendados).
+                
+                BLOCO 3: PROMPTS CONVERSACIONAIS PARA IA (4 perguntas exatas em linguagem natural que usuários fazem no Perplexity e ChatGPT Search sobre este tema).
+                """
+                with st.spinner("Gerando matriz estratégica de palavras-chave com IA..."):
+                    res_kw = generate_text_ai(prompt_kw, "Você é um consultor sênior de SEO e Keyword Research do SENAI-SP.")
+                    if not res_kw:
+                        res_kw = f"""### 🔑 Matriz Estratégica de Palavras-Chave • {kw_product}
+
+#### 1. Matriz de Classificação por Extensão e Intenção de Busca:
+| Tipo | Palavra-Chave | Intenção de Busca | Volume Estimado | Dificuldade |
+| :--- | :--- | :--- | :--- | :--- |
+| **Head Tail** | marketing digital | Informacional | Altíssimo (>100k/mês) | Muito Alta |
+| **Middle Tail** | curso marketing com ia | Comercial | Médio (~5k/mês) | Média |
+| **Middle Tail** | ferramentas de ia marketing | Informacional | Médio (~3k/mês) | Média |
+| **Long Tail** | curso de marketing digital com ia senai sp | Transacional | Nicho Qualificado | Baixa (Fácil Ranquear) |
+| **Long Tail** | como aplicar chatgpt no marketing da empresa | Comercial | Nicho Qualificado | Baixa |
+| **Long Tail** | aperfeiçoamento profissional marketing ia 30h | Transacional | Nicho Qualificado | Muito Baixa |
+
+---
+
+#### 2. Agrupamento Semântico (*Topic Clustering* para Pillar Page):
+* 🏛️ **Página Pilar (Pillar Page):** *Guia Definitivo de Inteligência Artificial no Marketing Digital (Conceitos, Aplicações e Carreira)*
+  * 📑 **Cluster 1:** *Como usar IA para Copywriting e Criação de Conteúdo AIDA/PAS.*
+  * 📑 **Cluster 2:** *Mídia Programática e Otimização de Leilão RTB com Machine Learning.*
+  * 📑 **Cluster 3:** *Chatbots Inteligentes e Lead Scoring para Atendimento 24/7.*
+  * 📑 **Cluster 4:** *Métricas e Análise Preditiva de Vendas com Modelos de IA.*
+
+---
+
+#### 3. Prompts e Perguntas Conversacionais para Motores de IA (GEO):
+1. *"Quais são os melhores cursos práticos de marketing digital com inteligência artificial em São Paulo?"*
+2. *"Como pequenas empresas podem automatizar o atendimento ao cliente usando chatbots com IA?"*
+3. *"Vale a pena fazer o curso de marketing com IA do SENAI para recolocação profissional?"*
+4. *"Qual a diferença entre SEO tradicional e GEO na otimização de sites para ChatGPT?"*
+"""
+                    st.session_state["cached_keywords_matrix"] = res_kw
+            
+            st.markdown(st.session_state["cached_keywords_matrix"])
+            
+            # Tabela para download
+            df_kw_export = pd.DataFrame([
+                {"Tipo": "Head Tail", "Palavra-Chave": f"marketing digital", "Intenção": "Informacional", "Dificuldade": "Alta"},
+                {"Tipo": "Middle Tail", "Palavra-Chave": f"curso {kw_product.lower()}", "Intenção": "Comercial", "Dificuldade": "Média"},
+                {"Tipo": "Long Tail", "Palavra-Chave": f"onde fazer {kw_product.lower()} em {kw_location.lower()}", "Intenção": "Transacional", "Dificuldade": "Baixa"},
+                {"Tipo": "Long Tail", "Palavra-Chave": f"melhor {kw_product.lower()} com certificado", "Intenção": "Transacional", "Dificuldade": "Baixa"},
+                {"Tipo": "GEO Prompt", "Palavra-Chave": f"como funciona {kw_product.lower()} na prática", "Intenção": "Informacional/GEO", "Dificuldade": "Nicho"}
+            ])
+            csv_kw = df_kw_export.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                "⬇️ Baixar Matriz de Palavras-Chave em CSV",
+                data=csv_kw,
+                file_name="matriz_palavras_chave_seo_geo.csv",
+                mime="text/csv"
+            )
+
+
+    # ==========================================
+    # --- ABA 7: AUDITORIA TÉCNICA DETALHADA ---
     # ==========================================
     with tab_tech:
         st.subheader("📄 Tabela Completa de URLs Auditadas")
@@ -1061,7 +1153,7 @@ A personalização em escala industrial com controle de qualidade digital e praz
         )
 
     # ==========================================
-    # --- ABA 7: BENCHMARKING COMPETITIVO ---
+    # --- ABA 8: BENCHMARKING COMPETITIVO ---
     # ==========================================
     with tab_comp:
         st.subheader("🏆 Comparativo com Concorrentes")
