@@ -1,6 +1,6 @@
 import streamlit as st
 from utils.auth import check_authentication
-from utils.ai_helper import render_api_key_sidebar, generate_text_ai
+from utils.ai_helper import render_api_key_sidebar, generate_text_ai, generate_chatbot_offline_reply
 from utils.export_helper import generate_html_report, render_download_button
 from utils.ui_components import render_sidebar_header, render_sidebar_footer, render_academic_footer
 
@@ -87,27 +87,22 @@ with col_chat:
                 {faq_conhecimento}
                 
                 Instruções:
-                1. Seja conciso (máximo 3 a 4 frases).
-                2. Sempre que apropriado, convide o usuário para deixar o nome e WhatsApp para formalizar a matrícula ou receber o material gratuito.
-                3. Se não souber a resposta, seja gentil e informe que um consultor entrará em contato.
+                1. Seja conciso, amigável e persuasivo (máximo 3 a 4 frases).
+                2. Adapte a resposta de acordo com a pergunta exata do cliente e o histórico da conversa.
+                3. Sempre que o cliente demonstrar interesse, convide-o a deixar o nome e WhatsApp para concluir a inscrição ou receber material.
+                4. Se não souber responder com base no FAQ, seja educado e solicite o contato para um consultor entrar em contato.
                 """
                 
-                resposta = generate_text_ai(user_input, system_instruction)
+                resposta = generate_text_ai(user_input, system_instruction, chat_history=st.session_state["chat_messages"])
                 
                 if not resposta:
-                    u_lower = user_input.lower()
-                    if any(w in u_lower for w in ["preco", "preço", "valor", "custa", "investimento"]):
-                        resposta = f"O investimento do curso é de R$ 490,00 ou em até 10x sem juros no cartão de crédito! 💳 Gostaria que eu reservasse a sua vaga ou prefere que eu envie a ementa detalhada pelo WhatsApp?"
-                    elif any(w in u_lower for w in ["data", "quando", "inicio", "início", "horario", "horário"]):
-                        resposta = f"Nossa próxima turma inicia na próxima segunda-feira, com aulas no período noturno (19h às 22h). As vagas são limitadas para garantir o aprendizado prático no laboratório!"
-                    elif any(w in u_lower for w in ["certificado", "diploma", "reconhecido"]):
-                        resposta = f"Sim! Ao concluir as 30 horas de capacitação você recebe o certificado oficial reconhecido pelo SENAI, com validade em todo o território nacional."
-                    elif any(w in u_lower for w in ["sim", "quero", "como faco", "como faço", "matricula", "matrícula"]):
-                        resposta = f"Excelente decisão! 🎉 Por favor, digite seu **Nome completo e WhatsApp com DDD** para que nossa equipe libere seu acesso imediatamente."
-                    elif "@" in u_lower or any(char.isdigit() for char in u_lower):
-                        resposta = f"Perfeito! Dados registrados com sucesso. Um de nossos consultores de atendimento entrará em contato em instantes para concluir sua inscrição. Muito obrigado pelo contato!"
-                    else:
-                        resposta = f"Entendi perfeitamente! Na {empresa}, estamos prontos para ajudar você a dominar as principais ferramentas de IA para marketing. Você gostaria de conhecer o programa de aulas ou falar sobre condições especiais de pagamento?"
+                    resposta = generate_chatbot_offline_reply(
+                        user_input=user_input,
+                        empresa=empresa,
+                        nome_bot=nome_bot,
+                        tom_bot=tom_bot,
+                        history=st.session_state["chat_messages"]
+                    )
 
                 st.write(resposta)
                 st.session_state["chat_messages"].append({"role": "assistant", "content": resposta})
