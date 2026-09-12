@@ -536,18 +536,36 @@ st.caption("Alinhado aos **Módulos 1 e 5 da Ementa SENAI**: SEO Técnico On-Pag
 
 st.markdown("---")
 
-# --- BARRA LATERAL ---
-with st.sidebar:
-    st.header("⚙️ Configurações da Auditoria")
-    target_url = st.text_input("🌐 Domínio / URL Principal", value="https://www.reed7.com.br/")
-    max_pages = st.slider("📄 Limite de Páginas para Varrer", min_value=5, max_value=50, value=15, step=5)
-    
-    st.markdown("---")
-    st.subheader("👥 Benchmarking Competitivo")
-    comp_url_1 = st.text_input("Concorrente 1 (Opcional)", value="https://www.estampariavasconcelos.com.br/")
-    comp_url_2 = st.text_input("Concorrente 2 (Opcional)", value="https://oreidoabada.com/")
-    
-    run_audit = st.button("🚀 Iniciar Auditoria Completa", type="primary", use_container_width=True)
+# --- PAINEL DE CONFIGURAÇÃO DA AUDITORIA (NO CORPO DA PÁGINA) ---
+st.markdown("### ⚙️ Painel de Configuração da Auditoria")
+with st.container():
+    col_cfg1, col_cfg2 = st.columns([2.3, 1.2])
+    with col_cfg1:
+        target_url = st.text_input(
+            "🌐 Domínio ou URL Principal para Auditar:",
+            value="https://www.reed7.com.br/",
+            help="Insira o link completo (com https://) do site da sua empresa ou projeto integrador."
+        )
+    with col_cfg2:
+        max_pages = st.slider(
+            "📄 Limite de Páginas para Varrer:",
+            min_value=5,
+            max_value=50,
+            value=15,
+            step=5,
+            help="Define a profundidade do rastreamento (crawler) para analisar tags, tempo de resposta e conteúdo."
+        )
+
+    with st.expander("👥 Benchmarking Competitivo — Adicionar Concorrentes (Opcional)", expanded=False):
+        col_comp1, col_comp2 = st.columns(2)
+        with col_comp1:
+            comp_url_1 = st.text_input("Concorrente 1 (URL Completa):", value="https://www.estampariavasconcelos.com.br/")
+        with col_comp2:
+            comp_url_2 = st.text_input("Concorrente 2 (URL Completa):", value="https://oreidoabada.com/")
+
+    run_audit = st.button("🚀 Iniciar Auditoria Completa de SEO, GEO & Local", type="primary", use_container_width=True)
+
+st.markdown("---")
 
 # Armazenamento em Session State para persistência entre cliques
 if run_audit or "last_audit_data" in st.session_state:
@@ -1103,7 +1121,7 @@ A personalização em escala industrial com controle de qualidade digital e praz
     )
 
 else:
-    st.info("👈 Insira a URL do site na barra lateral esquerda e clique em **🚀 Iniciar Auditoria Completa** para varrer o site e gerar os diagnósticos.")
+    st.info("👆 Configure a URL do site no painel acima e clique em **🚀 Iniciar Auditoria Completa de SEO, GEO & Local** para varrer o site e gerar os diagnósticos.")
     
     # Seção introdutória didática enquanto o aluno não roda o crawler
     st.markdown("### 📚 O que você pode auditar e aprender neste módulo:")
