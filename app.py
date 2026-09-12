@@ -97,10 +97,13 @@ st.markdown(
             • <strong>Sistemas de Recomendação & Neuromarketing:</strong> Algoritmos de Filtragem Baseada em Conteúdo e Filtragem Colaborativa integrados a gatilhos cognitivos de conversão em e-commerce <span class="badge-code">Recommender-Systems</span> <span class="badge-code">Collaborative-Filtering</span>.
         </div>
         <div class="competency-item">
-            • <strong>Agentes Conversacionais & Atendimento Inteligente:</strong> Assistentes virtuais 24/7 com extração contextual de intenções e termômetro preditivo de <em>Lead Scoring</em> <span class="badge-code">Conversational-AI</span> <span class="badge-code">Lead-Scoring</span>.
+            • <strong>Agentes Conversacionais & Atendimento Inteligente:</strong> Assistentes virtuais 24/7 com extração contextual de intenções, tratamento de objeções e termômetro de <em>Lead Scoring</em> <span class="badge-code">Conversational-AI</span> <span class="badge-code">Lead-Scoring</span>.
         </div>
         <div class="competency-item">
-            • <strong>Auditoria de SEO, Web Scraping & Indexabilidade:</strong> Extração automatizada de tags on-page, cálculo de Health Score, auditoria de SSL/sitemap/robots.txt e benchmarking competitivo <span class="badge-code">BeautifulSoup4</span> <span class="badge-code">Web-Crawling</span> <span class="badge-code">Technical-SEO</span>.
+            • <strong>Auditoria de SEO, GEO (IA Search) & Geomarketing:</strong> Extração de tags on-page, GEO Readiness para ChatGPT/Perplexity/Gemini, bots de IA no robots.txt, Schema LocalBusiness e raio de atuação regional <span class="badge-code">Technical-SEO</span> <span class="badge-code">GEO-AI</span> <span class="badge-code">Geomarketing</span> <span class="badge-code">Schema-JSON-LD</span>.
+        </div>
+        <div class="competency-item">
+            • <strong>Matriz de Métricas & Engenharia de KPIs:</strong> Dicionário didático dos 18 KPIs fundamentais de marketing, simulador interativo de fórmulas e gerador de metas SMART com IA <span class="badge-code">Marketing-KPIs</span> <span class="badge-code">Growth-Metrics</span> <span class="badge-code">BI</span>.
         </div>
     </div>
     """,
@@ -178,7 +181,7 @@ with row3_col1:
         """
         <div class="feature-card">
             <h4>🤖 5. Construtor de Chatbot & Qualificação de Leads</h4>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 1 da Ementa: Automação 24/7 e Termômetro de Lead Scoring.</p>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 1 da Ementa: Automação 24/7, Tratamento de Objeções e Lead Scoring.</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -190,14 +193,30 @@ with row3_col2:
     st.markdown(
         """
         <div class="feature-card">
-            <h4>🔍 6. Auditoria de SEO & Otimização Web</h4>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulos 1 e 5 da Ementa: Diagnóstico On-Page, Health Score, Benchmarking e Parecer com IA.</p>
+            <h4>🔍 6. Auditoria de SEO, GEO & Geomarketing</h4>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulos 1 e 5 da Ementa: SEO On-Page, GEO para IA (ChatGPT/Perplexity), Schema LocalBusiness e Geomarketing.</p>
         </div>
         """,
         unsafe_allow_html=True
     )
     if st.button("Abrir Auditoria de SEO ➡️", key="btn_nav_m6", use_container_width=True):
         st.switch_page("pages/6_🔍_Auditoria_e_SEO.py")
+
+st.write("")
+row4_col1, _ = st.columns([1, 1])
+
+with row4_col1:
+    st.markdown(
+        """
+        <div class="feature-card">
+            <h4>📈 7. Matriz de KPIs & Calculadora de Métricas</h4>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulos 2 e 6 da Ementa: Dicionário dos 18 KPIs, Calculadora com Benchmarks e Metas SMART com IA.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    if st.button("Abrir Matriz de KPIs ➡️", key="btn_nav_m7", use_container_width=True):
+        st.switch_page("pages/7_📈_Matriz_e_Calculadora_de_KPIs.py")
 
 # Rodapé da Barra Lateral
 render_sidebar_footer()
