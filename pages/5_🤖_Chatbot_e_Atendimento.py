@@ -7,7 +7,7 @@ if ROOT_DIR not in sys.path:
 
 import streamlit as st
 from utils.auth import check_authentication
-from utils.ai_helper import render_api_key_sidebar, generate_text_ai, generate_chatbot_offline_reply, get_api_key
+from utils.ai_helper import render_api_key_sidebar, generate_text_ai, generate_chatbot_offline_reply, get_api_key, analyze_lead_scoring_advanced
 from utils.export_helper import generate_html_report, render_download_button
 from utils.ui_components import render_sidebar_header, render_sidebar_footer, render_academic_footer
 
@@ -17,7 +17,7 @@ check_authentication()
 render_api_key_sidebar()
 
 st.title("🤖 Construtor de Chatbot & Qualificação de Leads")
-st.caption("Alinhado ao **Módulo 1 da Ementa SENAI**: Automação de marketing, chatbots de atendimento, assistentes virtuais e qualificação de clientes.")
+st.caption("Alinhado ao **Módulo 1 da Ementa SENAI**: Automação de marketing, chatbots de atendimento, assistentes virtuais, tratamento de objeções e qualificação de clientes.")
 
 # Inicialização do histórico do chat na sessão
 if "chat_messages" not in st.session_state:
@@ -47,53 +47,35 @@ with col_config:
     st.subheader("🎯 2. Termômetro de Lead Scoring (IA)")
     
     # -------------------------------------------------------------
-    # CÁLCULO DINÂMICO DE LEAD SCORING DIDÁTICO (PADRÃO HUBSPOT / RD STATION)
+    # ANÁLISE AVANÇADA DE SINAIS POSITIVOS E NEGATIVOS
     # -------------------------------------------------------------
-    user_msgs = [m["content"] for m in st.session_state["chat_messages"] if m["role"] == "user"]
-    historico_texto = " ".join(user_msgs).lower()
+    analise_scoring = analyze_lead_scoring_advanced(st.session_state["chat_messages"])
+    score_val = analise_scoring["score"]
     
-    # Critérios de pontuação
-    pontos_engajamento = 0
-    pontos_interesse = 0
-    pontos_comercial = 0
-    pontos_conversao = 0
+    # Barra de Progresso Visual
+    st.progress(score_val / 100)
     
-    # 1. Engajamento pela profundidade da conversa
-    if len(user_msgs) >= 1:
-        pontos_engajamento += 15
-    if len(user_msgs) >= 3:
-        pontos_engajamento += 15
-        
-    # 2. Interesse em Conteúdo, Grade e Horários
-    if any(w in historico_texto for w in ["curso", "cursos", "marketing", "ia", "automacao", "automação", "grade", "ementa", "aprender", "horario", "horário", "segunda", "noite", "aulas", "quando"]):
-        pontos_interesse = 25
-        
-    # 3. Interesse Comercial / Valores / Pagamento
-    if any(w in historico_texto for w in ["preco", "preço", "valor", "custa", "quanto", "pagamento", "cartao", "cartão", "parcela", "desconto", "investimento", "pix"]):
-        pontos_comercial = 25
-        
-    # 4. Intenção de Fechamento / Envio de Dados de Contato
-    if any(w in historico_texto for w in ["sim", "quero", "matricula", "matrícula", "inscrever", "fechar", "comprar", "vaga"]) or "@" in historico_texto or any(char.isdigit() for char in historico_texto):
-        pontos_conversao = 25
-        
-    score_total = min(100, pontos_engajamento + pontos_interesse + pontos_comercial + pontos_conversao)
-    
-    # Exibição da Barra de Progresso do Lead Scoring
-    st.progress(score_total / 100)
-    
-    if score_total >= 75:
-        st.success(f"🔥 **Lead Quente / SQL ({score_total}/100)**: Alta intenção de matrícula! Encaminhar imediatamente para um consultor humano.")
-    elif score_total >= 40:
-        st.warning(f"🌤️ **Lead Morno / MQL ({score_total}/100)**: Cliente engajado pesquisando horários, conteúdo e valores.")
+    if analise_scoring["status"] == "Objeção Ativa":
+        st.error(analise_scoring["classificacao"])
+    elif analise_scoring["status"] == "Lead Quente":
+        st.success(analise_scoring["classificacao"])
+    elif analise_scoring["status"] == "Lead Morno":
+        st.warning(analise_scoring["classificacao"])
     else:
-        st.info(f"❄️ **Lead Frio ({score_total}/100)**: Primeiro contato ou pesquisa inicial de curiosidade.")
+        st.info(analise_scoring["classificacao"])
         
-    with st.expander("📊 Critérios de Pontuação Ativos"):
-        st.write(f"• **Engajamento na Conversa:** {'✅ +' if pontos_engajamento > 0 else '⏳ '}{pontos_engajamento} pts ({len(user_msgs)} msgs)")
-        st.write(f"• **Interesse em Cursos & Horários:** {'✅ +' if pontos_interesse > 0 else '⏳ '}{pontos_interesse} pts")
-        st.write(f"• **Sondagem de Preço & Pagamento:** {'✅ +' if pontos_comercial > 0 else '⏳ '}{pontos_comercial} pts")
-        st.write(f"• **Intenção de Matrícula & Contato:** {'✅ +' if pontos_conversao > 0 else '⏳ '}{pontos_conversao} pts")
-        
+    with st.expander("📊 Detalhamento dos Sinais (Positivos vs. Objeções)", expanded=True):
+        st.markdown(f"**Pontos Positivos (+{analise_scoring['pontos_positivos']} pts):**")
+        for dp in analise_scoring["detalhes_positivos"]:
+            st.write(f"• ✅ {dp}")
+            
+        if analise_scoring["penalidades"] > 0:
+            st.markdown(f"**Penalidades / Objeções (-{analise_scoring['penalidades']} pts):**")
+            for dn in analise_scoring["detalhes_negativos"]:
+                st.write(f"• ❌ {dn}")
+        else:
+            st.caption("Nenhuma objeção ou recusa detectada até o momento.")
+            
     if st.button("🧹 Limpar e Reiniciar Chat", use_container_width=True):
         st.session_state["chat_messages"] = [
             {"role": "assistant", "content": f"Olá! 👋 Sou {nome_bot}, assistente virtual da {empresa}. Como posso te ajudar hoje?"}
@@ -120,16 +102,19 @@ with col_chat:
             with st.spinner(f"{nome_bot} está digitando..."):
                 system_instruction = f"""
                 Você é {nome_bot}, consultor(a) e atendente de relacionamento da {empresa}.
-                Você atende clientes de forma 100% humanizada, empática, inteligente e conversacional (sem respostas prontas ou robóticas).
+                Você atende clientes de forma 100% humanizada, empática, inteligente e conversacional.
                 
-                Instruções de Comportamento:
+                Instruções de Comportamento e Tratamento de Objeções:
                 1. Tom de voz: {tom_bot}.
-                2. Use o FAQ abaixo como base de conhecimento real:
+                2. Base de Informações da Empresa (FAQ):
                 {faq_conhecimento}
-                3. Responda diretamente ao que o cliente acabou de perguntar de forma clara e objetiva (máximo 2 a 3 frases).
-                4. Se o cliente perguntar sobre cursos fora do FAQ (ex: CNC, solda, etc.), informe com simpatia que no momento as turmas abertas são as do FAQ e ofereça o conteúdo disponível.
-                5. Se o cliente perguntar de dias, horários ou valores, use exatamente os dados do FAQ com entusiasmo.
-                6. Quando o cliente demonstrar intenção positiva, convide-o a enviar o Nome e WhatsApp para formalizar a reserva.
+                3. SE O CLIENTE REJEITAR, DISSER 'NÃO QUERO', 'NÃO TENHO INTERESSE' OU RECLAMAR:
+                   - NUNCA comemore e NUNCA peça dados de matrícula!
+                   - Seja educado, acolhedor, compreensivo e pergunte se ele procura alguma outra área no SENAI.
+                4. SE O CLIENTE PERGUNTAR DE CURSOS FORA DO FAQ (ex: CNC, solda, etc.):
+                   - Explique que as turmas abertas hoje são as do FAQ e ofereça detalhes se ele quiser.
+                5. SE O CLIENTE DEMONSTRAR INTERESSE REAL (preço, datas, matrícula):
+                   - Explique com clareza e entusiasmo, convidando a enviar o Nome e WhatsApp.
                 """
                 
                 resposta = generate_text_ai(
@@ -161,12 +146,10 @@ with col_chat:
         transcricao_html += f"<p>{autor} {m['content']}</p>"
     transcricao_html += "</div>"
     
-    lead_status_nome = 'Lead Quente (SQL)' if score_total >= 75 else 'Lead Morno (MQL)' if score_total >= 40 else 'Lead Frio'
-    
     secoes_chat = [
         ("1. Perfil do Assistente Configurado", f"<p><strong>Nome:</strong> {nome_bot}<br><strong>Empresa:</strong> {empresa}<br><strong>Tom de Voz:</strong> {tom_bot}</p>"),
         ("2. Transcrição Completa da Conversa", transcricao_html),
-        ("3. Avaliação de Qualificação de Lead (Lead Scoring)", f"<p><strong>Pontuação Final:</strong> {score_total}/100 ({lead_status_nome})</p><ul><li>Engajamento: {pontos_engajamento} pts</li><li>Interesse em Conteúdo: {pontos_interesse} pts</li><li>Sondagem de Valores: {pontos_comercial} pts</li><li>Intenção de Matrícula: {pontos_conversao} pts</li></ul>")
+        ("3. Avaliação de Qualificação de Lead (Lead Scoring)", f"<p><strong>Status:</strong> {analise_scoring['classificacao']}<br><strong>Pontos Positivos:</strong> +{analise_scoring['pontos_positivos']} pts<br><strong>Penalidades/Objeções:</strong> -{analise_scoring['penalidades']} pts</p>")
     ]
     
     html_chat = generate_html_report(
