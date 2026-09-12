@@ -65,7 +65,7 @@ st.markdown("### Laboratório Prático de Inteligência Artificial para Marketin
 
 # Banner / Caixa Informativa
 st.info(
-    "Este aplicativo é um projeto integrador educacional de código aberto que demonstra a aplicação prática de múltiplos ramos da IA no Marketing Digital, Publicidade Programática, Ciência de Dados e Experiência do Cliente."
+    "Este aplicativo é um projeto integrador educacional de código aberto que demonstra a aplicação prática de múltiplos ramos da IA no Marketing Digital, Publicidade Programática, Ciência de Dados, SEO Técnico e Experiência do Cliente."
 )
 
 st.write("")
@@ -90,6 +90,9 @@ st.markdown(
         </div>
         <div class="competency-item">
             • <strong>Agentes Conversacionais & Atendimento Inteligente:</strong> Assistentes virtuais 24/7 com extração contextual de intenções e termômetro preditivo de <em>Lead Scoring</em> <span class="badge-code">Conversational-AI</span> <span class="badge-code">Lead-Scoring</span>.
+        </div>
+        <div class="competency-item">
+            • <strong>Auditoria de SEO, Web Scraping & Indexabilidade:</strong> Extração automatizada de tags on-page, cálculo de Health Score, auditoria de SSL/sitemap/robots.txt e benchmarking competitivo <span class="badge-code">BeautifulSoup4</span> <span class="badge-code">Web-Crawling</span> <span class="badge-code">Technical-SEO</span>.
         </div>
     </div>
     """,
@@ -160,7 +163,8 @@ with row2_col2:
         st.switch_page("pages/4_📊_Dashboard_KPIs_Preditivo.py")
 
 st.write("")
-row3_col1, _ = st.columns([1, 1])
+row3_col1, row3_col2 = st.columns(2)
+
 with row3_col1:
     st.markdown(
         """
@@ -173,6 +177,19 @@ with row3_col1:
     )
     if st.button("Abrir Construtor de Chatbot ➡️", key="btn_nav_m5", use_container_width=True):
         st.switch_page("pages/5_🤖_Chatbot_e_Atendimento.py")
+
+with row3_col2:
+    st.markdown(
+        """
+        <div class="feature-card">
+            <h4>🔍 6. Auditoria de SEO & Otimização Web</h4>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulos 1 e 5 da Ementa: Diagnóstico On-Page, Health Score, Benchmarking e Parecer com IA.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    if st.button("Abrir Auditoria de SEO ➡️", key="btn_nav_m6", use_container_width=True):
+        st.switch_page("pages/6_🔍_Auditoria_e_SEO.py")
 
 # Rodapé da Barra Lateral
 render_sidebar_footer()
