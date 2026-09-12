@@ -47,97 +47,97 @@ BROWSER_HEADERS = {
     'Upgrade-Insecure-Requests': '1'
 }
 
-# --- BANCO DE CONHECIMENTO DE SEO ---
+# --- BANCO DE CONHECIMENTO DE SEO (100% AUTORAL & DIDÁTICO SENAI) ---
 SEO_KNOWLEDGE_BASE = {
     'Erro 4XX/5XX (Link Quebrado)': {
         'severity': 'Crítico', 'category': 'Técnico',
-        'description': "Erros 404 Not Found ou 500 impedem os motores de busca e usuários de acessar o conteúdo.",
-        'solution': "Corrija o link quebrado ou configure um redirecionamento 301 para uma página de destino relevante."
+        'description': "Códigos de status HTTP das famílias 4xx (erro de cliente) ou 5xx (erro de servidor) indicam que o recurso solicitado não pôde ser entregue. Isso desperdiça o orçamento de rastreamento (crawl budget) dos motores de busca e resulta em abandono imediato pelo usuário.",
+        'solution': "Audite as páginas de origem para corrigir links internos desatualizados. Caso a URL tenha sido removida definitivamente, configure um redirecionamento HTTP 301 permanente para o conteúdo correlato mais próximo."
     },
     'Página Bloqueada (noindex)': {
         'severity': 'Crítico', 'category': 'Indexabilidade',
-        'description': "A tag robots 'noindex' instrui o Google a NÃO exibir esta página nos resultados de pesquisa.",
-        'solution': "Remova a meta tag noindex se esta página deve ser encontrada nos mecanismos de busca."
+        'description': "A diretiva 'noindex' (via meta tag robots ou cabeçalho HTTP X-Robots-Tag) instrui explicitamente os rastreadores a não incluírem a página no índice público da SERP, anulando qualquer oportunidade de tráfego orgânico.",
+        'solution': "Se a página deve ser descoberta publicamente no Google, remova a instrução 'noindex' do código-fonte ou das configurações do seu CMS. Mantenha 'noindex' apenas em páginas administrativas, áreas de checkout ou políticas internas."
     },
     'Título Vazio': {
         'severity': 'Crítico', 'category': 'On-Page',
-        'description': "A Title Tag é o fator on-page mais importante para informar sobre o que é a página.",
-        'solution': "Insira um título descritivo contendo a palavra-chave principal do conteúdo."
+        'description': "O elemento <title> é o principal indicador temático utilizado pelos algoritmos de indexação e funciona como o cabeçalho clicável exibido nas páginas de resultados.",
+        'solution': "Insira uma tag <title> única e descritiva para cada página, posicionando a palavra-chave de maior intenção de busca no início e o nome da organização ao final."
     },
     'Sem Tag H1': {
         'severity': 'Crítico', 'category': 'On-Page',
-        'description': "A tag H1 indica o cabeçalho principal e o tema central da página.",
-        'solution': "Adicione uma única tag H1 com a principal palavra-chave da página."
+        'description': "A ausência de uma tag <h1> compromete a hierarquia semântica do documento HTML, dificultando a contextualização do tema principal por mecanismos de busca e tecnologias assistivas (leitores de tela).",
+        'solution': "Adicione um único elemento <h1> no início do corpo da página com a proposta de valor e a palavra-chave principal do conteúdo."
     },
     'Múltiplas Tags H1': {
         'severity': 'Atenção', 'category': 'On-Page',
-        'description': "Ter mais de um H1 pode diluir a hierarquia semântica e o foco do conteúdo.",
-        'solution': "Mantenha apenas um H1 e utilize tags H2, H3 para subtítulos."
+        'description': "A repetição de múltiplas tags <h1> em um mesmo documento fragmenta a estrutura de tópicos da página, diluindo o foco semântico do tema central.",
+        'solution': "Consolide o tema principal em apenas um <h1> por documento e organize os subtópicos subsequentes utilizando <h2>, <h3> e <h4> de forma hierárquica."
     },
     'Título Muito Curto (<30c)': {
         'severity': 'Atenção', 'category': 'On-Page',
-        'description': "Títulos muito curtos deixam de aproveitar o espaço na SERP e perdem relevância semântica.",
-        'solution': "Expanda o título incluindo detalhes do serviço, produto ou sua marca."
+        'description': "Títulos com menos de 30 caracteres subutilizam o espaço visual disponível nos resultados de busca e fornecem contexto limitado sobre o conteúdo da página.",
+        'solution': "Amplie o título inserindo qualificadores de busca, benefícios diretos do produto/serviço ou segmentação regional, buscando atingir entre 45 e 60 caracteres."
     },
     'Título Muito Longo (>65c)': {
         'severity': 'Atenção', 'category': 'On-Page',
-        'description': "Títulos com mais de 65 caracteres costumam ser cortados nos resultados do Google.",
-        'solution': "Reduza o tamanho mantendo as palavras mais importantes no início."
+        'description': "Títulos com mais de 65 caracteres (ou que excedam o limite visual de ~600 pixels) sofrem truncamento com reticências nos snippets do Google, ocultando termos essenciais.",
+        'solution': "Edite o texto para manter as palavras-chave prioritárias nos primeiros 60 caracteres, eliminando termos redundantes."
     },
     'Meta Descrição Vazia': {
         'severity': 'Atenção', 'category': 'On-Page',
-        'description': "Sem meta descrição, o Google seleciona trechos aleatórios que podem não ser atraentes.",
-        'solution': "Crie uma descrição única de 70 a 160 caracteres convidando o usuário ao clique."
+        'description': "Sem uma meta descrição configurada, o buscador exibirá trechos aleatórios capturados do corpo do texto, reduzindo a atratividade do snippet e a taxa de cliques (CTR).",
+        'solution': "Escreva um resumo conciso e convidativo contendo de 120 a 155 caracteres com uma chamada para ação (CTA) persuasiva que estimule o clique do usuário."
     },
     'Meta Descrição Fora do Ideal': {
         'severity': 'Atenção', 'category': 'On-Page',
-        'description': "Meta descrições muito curtas (<70c) ou longas (>160c) podem ser pouco informativas ou cortadas.",
-        'solution': "Ajuste a meta descrição para ficar entre 70 e 160 caracteres."
+        'description': "Descrições com menos de 70 caracteres são pouco informativas, enquanto textos acima de 160 caracteres são cortados nas telas dos dispositivos móveis e desktops.",
+        'solution': "Ajuste o tamanho do texto para a faixa ideal entre 120 e 155 caracteres, garantindo legibilidade completa em qualquer formato de tela."
     },
     'Conteúdo Curto (<300 palavras)': {
         'severity': 'Atenção', 'category': 'Conteúdo',
-        'description': "Páginas com pouco texto ('Thin Content') têm baixa chance de ranquear para termos concorridos.",
-        'solution': "Enriqueça o texto da página com informações detalhadas e respostas às dúvidas dos clientes."
+        'description': "Páginas com escassez de texto ('Thin Content') geralmente apresentam baixa densidade semântica e têm dificuldades para competir em termos concorridos nas buscas orgânicas.",
+        'solution': "Enriqueça a página desenvolvendo seções detalhadas sobre benefícios, respostas para dúvidas frequentes (FAQ), dados técnicos e provas sociais."
     },
     'URL Muito Longa (>120c)': {
         'severity': 'Atenção', 'category': 'Estrutura',
-        'description': "URLs excessivamente longas são menos amigáveis para compartilhamento e leitura.",
-        'solution': "Simplifique a estrutura da URL usando apenas palavras-chave e hífens."
+        'description': "URLs excessivamente extensas ou repletas de parâmetros dinâmicos dificultam o rastreamento, o compartilhamento em redes e a legibilidade por parte do usuário.",
+        'solution': "Adote URLs amigáveis e curtas (slugs limpos), estruturadas exclusivamente com palavras-chave relevantes separadas por hífens."
     },
     'Sem Certificado SSL (HTTP)': {
         'severity': 'Crítico', 'category': 'Segurança',
-        'description': "Sites HTTP são marcados como 'Não Seguros' e perdem relevância no Google.",
-        'solution': "Instale um certificado SSL e configure o redirecionamento automático de HTTP para HTTPS."
+        'description': "Conexões em protocolo HTTP não possuem criptografia de dados, sendo sinalizadas pelos navegadores modernos como 'Não Seguras' e penalizadas nos critérios de ranqueamento.",
+        'solution': "Instale um certificado SSL/TLS no servidor web e configure regras de redirecionamento automático (HTTP 301) para forçar o carregamento seguro em HTTPS."
     },
     'Sem Doctype Declarado': {
         'severity': 'Atenção', 'category': 'Técnico',
-        'description': "A ausência de `<!DOCTYPE html>` pode causar renderização incorreta nos navegadores.",
-        'solution': "Adicione `<!DOCTYPE html>` na primeira linha de todos os arquivos HTML."
+        'description': "A omissão da declaração <!DOCTYPE html> pode acionar o modo de compatibilidade retrógrada ('Quirks Mode') nos navegadores, causando inconsistências visuais e erros de renderização.",
+        'solution': "Adicione a declaração <!DOCTYPE html> como a primeira linha absoluta do código-fonte antes da tag de abertura <html>."
     },
     'Imagens Sem Alt Text': {
         'severity': 'Atenção', 'category': 'Acessibilidade',
-        'description': "O atributo alt permite que o Google Imagens indexe sua foto e melhora a acessibilidade.",
-        'solution': "Preencha a tag alt com uma descrição sucinta de cada imagem."
+        'description': "O atributo alt fornece a descrição textual de imagens para leitores de tela de pessoas com deficiência visual e viabiliza a indexação das ilustrações no Google Imagens.",
+        'solution': "Preencha o atributo alt de todas as tags <img> com descrições contextuais claras e objetivas do que a imagem representa."
     },
     'Sem Open Graph (Redes Sociais)': {
         'severity': 'Oportunidade', 'category': 'Social',
-        'description': "Sem tags Open Graph (og:image/og:title), a prévia ao compartilhar no WhatsApp fica sem imagem.",
-        'solution': "Adicione tags `<meta property='og:image'>` e `<meta property='og:title'>`."
+        'description': "A ausência das meta tags Open Graph (og:title, og:image, og:description) faz com que links compartilhados em aplicativos como WhatsApp e redes sociais fiquem sem imagem de prévia.",
+        'solution': "Implemente as tags <meta property='og:image'> e <meta property='og:title'> no cabeçalho <head>, utilizando imagens na proporção recomendada de 1200x630 pixels."
     },
     'Sem Dados Estruturados (Schema)': {
         'severity': 'Oportunidade', 'category': 'Técnico',
-        'description': "O Schema Markup (JSON-LD) ajuda a obter Rich Snippets (estrelas de avaliação, preços, etc.).",
-        'solution': "Implemente Schema.org específico para sua empresa (LocalBusiness, Organization, Product)."
+        'description': "A ausência de marcação de dados estruturados em JSON-LD (Schema.org) impede os motores de busca de gerarem Rich Snippets (como estrelas de avaliação, preços e FAQs enriquecidos).",
+        'solution': "Adicione esquemas em JSON-LD no cabeçalho da página compatíveis com o seu modelo de negócio (ex: Organization, LocalBusiness, Product ou Course)."
     },
     'Tag Canônica Ausente': {
         'severity': 'Atenção', 'category': 'Técnico',
-        'description': "A tag canonical evita problemas de conteúdo duplicado entre versões com/sem www e parâmetros.",
-        'solution': "Adicione `<link rel='canonical' href='URL_OFICIAL'>` em todas as páginas."
+        'description': "Sem a declaração da URL canônica, páginas acessíveis por múltiplas variações de links (com/sem www, parâmetros de campanha ou barras finais) podem ser tratadas como conteúdo duplicado.",
+        'solution': "Insira a tag <link rel='canonical' href='URL_OFICIAL_ABSOLUTA'> no <head> de cada página para consolidar a autoridade de indexação na versão principal."
     },
     'Tempo de Resposta Lento (>1.5s)': {
         'severity': 'Atenção', 'category': 'Performance',
-        'description': "Tempo de resposta elevado prejudica o Core Web Vitals e afasta visitantes.",
-        'solution': "Otimize imagens, ative cache no servidor e considere o uso de CDN."
+        'description': "Tempos elevados de resposta inicial do servidor (TTFB) e renderização aumentam a taxa de rejeição e prejudicam diretamente a pontuação nas métricas de Core Web Vitals.",
+        'solution': "Comprima arquivos de mídia, utilize formatos modernos de imagem (WebP/AVIF), ative compressão Gzip/Brotli e implemente mecanismos de cache ou CDN no servidor."
     }
 }
 
