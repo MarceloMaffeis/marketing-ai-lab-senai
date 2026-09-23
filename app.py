@@ -78,43 +78,11 @@ st.info(
 
 st.write("")
 
-# Seção de Competências e Tecnologias
-st.markdown("### 📚 Competências e Tecnologias Desenvolvidas:")
-
-st.markdown(
-    """
-    <div style="margin-top: 1rem; margin-bottom: 1.5rem;">
-        <div class="competency-item">
-            • <strong>1. SEO Técnico, GEO (IA Search) & Pesquisa de Palavras-Chave:</strong> Auditoria on-page de tags, GEO Readiness para ChatGPT/Perplexity/Gemini, bots de IA no robots.txt, Schema LocalBusiness, geomarketing e matriz de cauda longa <span class="badge-code">SEO</span> <span class="badge-code">GEO-AI</span> <span class="badge-code">Keywords-LongTail</span> <span class="badge-code">Geomarketing</span>.
-        </div>
-        <div class="competency-item">
-            • <strong>2. Agentes Conversacionais & Atendimento Inteligente:</strong> Assistentes virtuais 24/7 com extração contextual de intenções, tratamento empático de objeções e termômetro de <em>Lead Scoring</em> dinâmico <span class="badge-code">Conversational-AI</span> <span class="badge-code">Lead-Scoring</span> <span class="badge-code">NLP</span>.
-        </div>
-        <div class="competency-item">
-            • <strong>3. Matriz de Métricas & Engenharia de KPIs:</strong> Dicionário didático dos 18 KPIs fundamentais de marketing, simulador interativo de fórmulas e gerador de metas SMART com IA <span class="badge-code">Marketing-KPIs</span> <span class="badge-code">Growth-Metrics</span> <span class="badge-code">BI</span>.
-        </div>
-        <div class="competency-item">
-            • <strong>4. Publicidade Programática & Mídia Preditiva:</strong> Simulação de leilão em tempo real (RTB), estratégias de <em>Smart Bidding</em> (IA) vs. Lance Manual e análise de funil de conversão <span class="badge-code">RTB-Engine</span> <span class="badge-code">Smart-Bidding</span> <span class="badge-code">AdTech</span>.
-        </div>
-        <div class="competency-item">
-            • <strong>5. Sistemas de Recomendação & Neuromarketing:</strong> Algoritmos de Filtragem Baseada em Conteúdo e Filtragem Colaborativa integrados a gatilhos cognitivos de conversão em e-commerce <span class="badge-code">Recommender-Systems</span> <span class="badge-code">Collaborative-Filtering</span> <span class="badge-code">Neuromarketing</span>.
-        </div>
-        <div class="competency-item">
-            • <strong>6. Processamento de Linguagem Natural & Copywriting com IA:</strong> Geração de copies estruturadas com frameworks AIDA e PAS, engenharia de prompts para criativos visuais e auditoria de conformidade ética/LGPD <span class="badge-code">Copywriting</span> <span class="badge-code">Prompt-Engineering</span> <span class="badge-code">LGPD-Ethics</span>.
-        </div>
-        <div class="competency-item">
-            • <strong>7. Machine Learning Supervisionado & Análise Preditiva:</strong> Previsão de tendências de faturamento, análise de CAC, LTV e ROAS com regressão linear <span class="badge-code">Scikit-Learn</span> <span class="badge-code">Pandas</span> <span class="badge-code">Plotly</span> <span class="badge-code">Predictive-AI</span>.
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown("---")
-
-# Módulos Práticos do Curso na Sequência Exata da Ementa SENAI
-st.markdown("### 🗺️ Módulos Práticos do Curso (Sequência Pedagógica SENAI):")
-st.write("Navegue pelos laboratórios utilizando o menu lateral ou os atalhos abaixo:")
+# ==============================================================================
+# 1. ACESSO RÁPIDO AOS MÓDULOS (NO TOPO PARA NAVEGAÇÃO IMEDIATA)
+# ==============================================================================
+st.markdown("### 🗺️ Módulos Práticos do Curso (Acesso Rápido):")
+st.caption("Selecione um dos laboratórios interativos abaixo para iniciar a prática:")
 
 row1_col1, row1_col2 = st.columns(2)
 
@@ -123,7 +91,7 @@ with row1_col1:
         """
         <div class="feature-card">
             <h4>🔍 1. Auditoria SEO, GEO & Palavras-Chave</h4>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 1 da Ementa: SEO On-Page, GEO para IA (ChatGPT/Perplexity), Schema LocalBusiness e Matriz de Cauda Longa.</p>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 1 da Ementa: SEO On-Page, GEO para IA (ChatGPT/Perplexity), Google Meu Negócio, Google Trends e Matriz de Cauda Longa.</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -135,8 +103,8 @@ with row1_col2:
     st.markdown(
         """
         <div class="feature-card">
-            <h4>🤖 2. Construtor de Chatbot & Qualificação de Leads</h4>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 1 da Ementa: Automação 24/7, Tratamento de Objeções e Lead Scoring Dinâmico.</p>
+            <h4>🤖 2. Construtor de Chatbot, RAG & Lead Scoring</h4>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 1 da Ementa: 8 Modelos de Negócio, Base de Conhecimento RAG, Termômetro de Lead Scoring e Tratamento de Objeções.</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -151,8 +119,8 @@ with row2_col1:
     st.markdown(
         """
         <div class="feature-card">
-            <h4>📈 3. Matriz de KPIs & Calculadora de Métricas</h4>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 2 da Ementa: Dicionário dos 18 KPIs, Calculadora com Diagnósticos e Metas SMART com IA.</p>
+            <h4>📈 3. Matriz de KPIs, UTM Builder & Metas SMART</h4>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 2 da Ementa: Dicionário dos 18 KPIs, Calculadora com Diagnósticos, Gerador de Parâmetros UTM para GA4 e Metas SMART.</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -164,8 +132,8 @@ with row2_col2:
     st.markdown(
         """
         <div class="feature-card">
-            <h4>🎯 4. Simulador de Mídia Programática & RTB</h4>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 3 da Ementa: Leilão em tempo real, Smart Bidding vs Manual e ROAS.</p>
+            <h4>🎯 4. Simulador de Mídia Programática & Google Ads</h4>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 3 da Ementa: Leilão RTB em tempo real, Smart Bidding vs Manual, Criador de Anúncios Google Ads (RSA) e ROAS.</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -181,7 +149,7 @@ with row3_col1:
         """
         <div class="feature-card">
             <h4>🛍️ 5. Recomendação, Neuromarketing & UX</h4>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 4 da Ementa: Filtragem Colaborativa/Conteúdo e 4 Gatilhos Mentais Cognitivos.</p>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 4 da Ementa: Vitrine E-commerce, Filtragem Colaborativa/Conteúdo e 4 Gatilhos Mentais Cognitivos de Conversão.</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -194,7 +162,7 @@ with row3_col2:
         """
         <div class="feature-card">
             <h4>✍️ 6. Copywriting, Criativos & Ética com IA</h4>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 5 da Ementa: Frameworks AIDA/PAS, Prompts de Imagem e Auditoria Ética/LGPD.</p>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 5 da Ementa: Frameworks AIDA/PAS, Engenharia de Prompts de Imagem (Midjourney/DALL-E) e Auditoria Ética/LGPD.</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -210,7 +178,7 @@ with row4_col1:
         """
         <div class="feature-card">
             <h4>📊 7. Dashboard de BI & Previsão Preditiva (ML)</h4>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 6 da Ementa: Análise de Dados e Projeção de Vendas com Machine Learning Supervisionado.</p>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Módulo 6 da Ementa: Análise de Dados de Marketing e Projeção de Vendas/ROAS com Regressão Linear Supervisionada.</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -223,13 +191,97 @@ with row4_col2:
         """
         <div class="feature-card">
             <h4>🌐 8. Biblioteca de Ferramentas, Buscas & Hub de IA</h4>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Hub Integrado: Multibusca em 1-clique, Ferramentas Google, Motores GEO, SEO e Inteligência Competitiva.</p>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">Hub Integrado: Lançador de Multibusca em 1-clique, Ferramentas Google, Motores GEO, SEO e Inteligência de Mercado.</p>
         </div>
         """,
         unsafe_allow_html=True
     )
     if st.button("Abrir Biblioteca & Hub de Buscas ➡️", key="btn_nav_m8", use_container_width=True):
         st.switch_page("pages/8_🌐_Hub_de_Ferramentas_e_Buscas.py")
+
+st.markdown("---")
+
+# ==============================================================================
+# 2. DETALHAMENTO DE COMPETÊNCIAS & TECNOLOGIAS DESENVOLVIDAS
+# ==============================================================================
+st.markdown("### 📚 Competências Desenvolvidas na Ementa SENAI (30h):")
+
+st.markdown(
+    """
+    <div style="margin-top: 1rem; margin-bottom: 1.5rem;">
+        <div class="competency-item">
+            • <strong>1. SEO Técnico, GEO (IA Search) & Pesquisa de Palavras-Chave:</strong> Auditoria on-page de tags HTML, GEO Readiness para ChatGPT Search/Perplexity/Gemini, bots de IA no robots.txt, Schema.org LocalBusiness, Google Meu Negócio, Google Trends e matriz de cauda longa <span class="badge-code">SEO</span> <span class="badge-code">GEO-AI</span> <span class="badge-code">Keywords-LongTail</span> <span class="badge-code">Geomarketing</span>.
+        </div>
+        <div class="competency-item">
+            • <strong>2. Agentes Conversacionais & Atendimento Inteligente (RAG):</strong> Assistentes virtuais 24/7 com base de conhecimento (RAG), adaptação para múltiplos modelos de negócio (E-commerce, Serviços, Clínicas, B2B), tratamento empático de objeções e termômetro de <em>Lead Scoring</em> dinâmico <span class="badge-code">Conversational-AI</span> <span class="badge-code">RAG</span> <span class="badge-code">Lead-Scoring</span> <span class="badge-code">NLP</span>.
+        </div>
+        <div class="competency-item">
+            • <strong>3. Matriz de Métricas, UTMs & Engenharia de KPIs:</strong> Dicionário didático dos 18 KPIs fundamentais de marketing nos 4 pilares, calculadora interativa de fórmulas, construtor de parâmetros UTM para Google Analytics 4 (GA4) e gerador de metas SMART com IA <span class="badge-code">Marketing-KPIs</span> <span class="badge-code">GA4-UTM</span> <span class="badge-code">Growth-Metrics</span> <span class="badge-code">BI</span>.
+        </div>
+        <div class="competency-item">
+            • <strong>4. Publicidade Programática, Google Ads & Mídia Preditiva:</strong> Simulação de leilão em tempo real (RTB), estratégias de <em>Smart Bidding</em> (IA) vs. Lance Manual, construtor de anúncios responsivos do Google Ads (RSA) e análise de funil de conversão <span class="badge-code">RTB-Engine</span> <span class="badge-code">Google-Ads-RSA</span> <span class="badge-code">Smart-Bidding</span> <span class="badge-code">AdTech</span>.
+        </div>
+        <div class="competency-item">
+            • <strong>5. Sistemas de Recomendação & Neuromarketing:</strong> Algoritmos de Filtragem Baseada em Conteúdo e Filtragem Colaborativa integrados a 4 gatilhos cognitivos de conversão em e-commerce (Escassez, Urgência, Prova Social e Autoridade) <span class="badge-code">Recommender-Systems</span> <span class="badge-code">Collaborative-Filtering</span> <span class="badge-code">Neuromarketing</span>.
+        </div>
+        <div class="competency-item">
+            • <strong>6. Processamento de Linguagem Natural & Copywriting com IA:</strong> Geração de copies estruturadas com frameworks AIDA e PAS, engenharia de prompts para criativos visuais (Midjourney/DALL-E) e auditoria de conformidade ética e LGPD <span class="badge-code">Copywriting</span> <span class="badge-code">Prompt-Engineering</span> <span class="badge-code">LGPD-Ethics</span>.
+        </div>
+        <div class="competency-item">
+            • <strong>7. Machine Learning Supervisionado & Análise Preditiva:</strong> Previsão de tendências de faturamento, análise de CAC, LTV e ROAS com algoritmos de regressão linear supervisionada <span class="badge-code">Scikit-Learn</span> <span class="badge-code">Pandas</span> <span class="badge-code">Plotly</span> <span class="badge-code">Predictive-AI</span>.
+        </div>
+        <div class="competency-item">
+            • <strong>8. Ecossistema Google & Inteligência Competitiva:</strong> Hub de multibusca rápida em 1-clique (Google Trends, Search, Perplexity, PageSpeed, Maps, Schema) e diretório categorizado com mais de 20 ferramentas de mercado <span class="badge-code">Google-Ecosystem</span> <span class="badge-code">Search-Hub</span> <span class="badge-code">Competitive-Intelligence</span>.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ==============================================================================
+# 3. ARQUITETURA TÉCNICA DO SISTEMA & STACK TECNOLÓGICO
+# ==============================================================================
+st.markdown("### ⚙️ Arquitetura Técnica & Stack Tecnológico:")
+
+c_arch1, c_arch2, c_arch3 = st.columns(3)
+
+with c_arch1:
+    st.markdown("""
+    <div style="background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px; height: 100%;">
+        <h5 style="color: #38bdf8; margin-top: 0;">🐍 Core & Web Framework</h5>
+        <ul style="font-size: 0.85rem; color: #cbd5e1; padding-left: 18px; margin-bottom: 0;">
+            <li><strong>Python 3.11+:</strong> Linguagem base da plataforma.</li>
+            <li><strong>Streamlit:</strong> Arquitetura reativa multi-página com persistência em <code>st.session_state</code>.</li>
+            <li><strong>BeautifulSoup4 & Requests:</strong> Web scraping assíncrono e auditoria de tags do DOM.</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c_arch2:
+    st.markdown("""
+    <div style="background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px; height: 100%;">
+        <h5 style="color: #34d399; margin-top: 0;">🧠 Inteligência Artificial & ML</h5>
+        <ul style="font-size: 0.85rem; color: #cbd5e1; padding-left: 18px; margin-bottom: 0;">
+            <li><strong>Google Gemini AI:</strong> REST API com fallback em cascata (2.5-Flash, 1.5-Flash).</li>
+            <li><strong>Motor RAG & Heurística Offline:</strong> Resiliência 100% autônoma sem custo de API.</li>
+            <li><strong>Scikit-Learn & Pandas:</strong> Regressão linear preditiva de faturamento e ROAS.</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c_arch3:
+    st.markdown("""
+    <div style="background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px; height: 100%;">
+        <h5 style="color: #a78bfa; margin-top: 0;">📊 Visualização & Infraestrutura</h5>
+        <ul style="font-size: 0.85rem; color: #cbd5e1; padding-left: 18px; margin-bottom: 0;">
+            <li><strong>Plotly Engine:</strong> Gauges de SEO, funis RTB e gráficos preditivos interativos.</li>
+            <li><strong>Exportador HTML Standalone:</strong> Relatórios executivos responsivos para download.</li>
+            <li><strong>Deploy Contínuo (CI/CD):</strong> Sincronizado via GitHub no Render.com e Streamlit Cloud.</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.write("")
 
 # Rodapé da Barra Lateral
 render_sidebar_footer()
