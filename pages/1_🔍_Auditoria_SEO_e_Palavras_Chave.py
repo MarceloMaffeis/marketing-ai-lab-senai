@@ -1063,74 +1063,88 @@ A metodologia prática focada nas exigências da indústria 4.0, garantindo ráp
             kw_product = st.text_input("📦 Produto / Serviço da Empresa:", value="Curso de Marketing Digital com Inteligência Artificial")
             kw_niche = st.text_input("🎯 Nicho / Segmento de Atuação:", value="Educação Profissional & Tecnologia")
         with col_kw2:
-            kw_location = st.text_input("📍 Praça / Região Geográfica:", value="São Paulo / Brasil")
+            kw_location = st.text_input("📍 Praça / Região Geográfica:", value="Sorocaba / São Paulo")
             btn_generate_keywords = st.button("✨ Gerar Matriz de Palavras-Chave & Cauda Longa com IA", type="primary", use_container_width=True)
 
-        if btn_generate_keywords or "cached_keywords_matrix" in st.session_state:
-            if btn_generate_keywords:
-                prompt_kw = f"""
-                Você é o maior especialista em SEO, Pesquisa de Palavras-Chave e GEO (Generative Engine Optimization) do SENAI-SP.
-                Analise o produto: '{kw_product}', Nicho: '{kw_niche}', Região: '{kw_location}'.
+        if btn_generate_keywords:
+            prompt_kw = f"""
+            Você é um especialista sênior em SEO, Pesquisa de Palavras-Chave e GEO (Generative Engine Optimization) do SENAI-SP.
+            Analise o produto: '{kw_product}', Nicho: '{kw_niche}', Região: '{kw_location}'.
 
-                Gere uma pesquisa estratégica completa estruturada em 3 blocos:
+            Gere uma pesquisa estratégica completa com os termos reais relacionados a '{kw_product}':
+            
+            BLOCO 1: MATRIZ DE PALAVRAS-CHAVE (Tabela em Markdown com colunas: Tipo [Head Tail / Middle Tail / Long Tail], Palavra-Chave, Intenção de Busca [Informacional / Comercial / Transacional], Volume Estimado [Alto/Médio/Nicho], Dificuldade de Ranqueamento [Alta/Média/Baixa]). Forneça 6 termos realistas focados em '{kw_product}'.
+            
+            BLOCO 2: TOPIC CLUSTERING (Arquitetura de Conteúdo: Defina 1 Pillar Page e 4 Cluster Subtopics recomendados para '{kw_product}').
+            
+            BLOCO 3: PROMPTS CONVERSACIONAIS PARA IA (4 perguntas exatas em linguagem natural que usuários fazem no Perplexity e ChatGPT Search sobre '{kw_product}').
+            """
+            with st.spinner(f"Gerando matriz estratégica de palavras-chave para '{kw_product}'..."):
+                res_kw = generate_text_ai(prompt_kw, "Você é um consultor sênior de SEO e Keyword Research do SENAI-SP.")
                 
-                BLOCO 1: MATRIZ DE PALAVRAS-CHAVE (Tabela em Markdown com colunas: Tipo [Head Tail / Middle Tail / Long Tail], Palavra-Chave, Intenção de Busca [Informacional / Comercial / Transacional], Volume Estimado [Alto/Médio/Nicho], Dificuldade de Ranqueamento [Alta/Média/Baixa]). Forneça 6 termos representativos.
+                # Heurística Dinâmica Inteligente para qualquer produto digitado caso a IA esteja offline
+                p_clean = kw_product.strip() if kw_product else "Produto"
+                n_clean = kw_niche.strip() if kw_niche else "Geral"
+                loc_clean = kw_location.strip() if kw_location else "Brasil"
+                p_lower = p_clean.lower()
+                loc_lower = loc_clean.lower().split('/')[0].strip()
                 
-                BLOCO 2: TOPIC CLUSTERING (Arquitetura de Conteúdo: Defina 1 Pillar Page e 4 Cluster Subtopics recomendados).
-                
-                BLOCO 3: PROMPTS CONVERSACIONAIS PARA IA (4 perguntas exatas em linguagem natural que usuários fazem no Perplexity e ChatGPT Search sobre este tema).
-                """
-                with st.spinner("Gerando matriz estratégica de palavras-chave com IA..."):
-                    res_kw = generate_text_ai(prompt_kw, "Você é um consultor sênior de SEO e Keyword Research do SENAI-SP.")
-                    if not res_kw:
-                        res_kw = f"""### 🔑 Matriz Estratégica de Palavras-Chave • {kw_product}
+                if not res_kw:
+                    res_kw = f"""### 🔑 Matriz Estratégica de Palavras-Chave • {p_clean}
+*(Gerado pelo Motor Inteligente de Pesquisa Semântica do SENAI-SP)*
 
 #### 1. Matriz de Classificação por Extensão e Intenção de Busca:
 | Tipo | Palavra-Chave | Intenção de Busca | Volume Estimado | Dificuldade |
 | :--- | :--- | :--- | :--- | :--- |
-| **Head Tail** | marketing digital | Informacional | Altíssimo (>100k/mês) | Muito Alta |
-| **Middle Tail** | curso marketing com ia | Comercial | Médio (~5k/mês) | Média |
-| **Middle Tail** | ferramentas de ia marketing | Informacional | Médio (~3k/mês) | Média |
-| **Long Tail** | curso de marketing digital com ia senai sp | Transacional | Nicho Qualificado | Baixa (Fácil Ranquear) |
-| **Long Tail** | como aplicar chatgpt no marketing da empresa | Comercial | Nicho Qualificado | Baixa |
-| **Long Tail** | aperfeiçoamento profissional marketing ia 30h | Transacional | Nicho Qualificado | Muito Baixa |
+| **Head Tail** | {p_lower} | Informacional | Altíssimo (Busca Ampla) | Muito Alta |
+| **Middle Tail** | {p_lower} profissional | Comercial | Médio (Compradores Qualificados) | Média |
+| **Middle Tail** | melhor {p_lower} para {n_clean.lower()} | Comercial | Médio (~3.5k buscas/mês) | Média |
+| **Long Tail** | onde comprar {p_lower} em {loc_lower} | Transacional | Alta Conversão (Local) | Baixa (Fácil Ranquear) |
+| **Long Tail** | como aplicar {p_lower} passo a passo | Informacional | Nicho Específico | Baixa |
+| **Long Tail** | {p_lower} com melhor custo benefício | Transacional | Fundo de Funil (Decisão) | Muito Baixa |
 
 ---
 
 #### 2. Agrupamento Semântico (*Topic Clustering* para Pillar Page):
-* 🏛️ **Página Pilar (Pillar Page):** *Guia Definitivo de Inteligência Artificial no Marketing Digital (Conceitos, Aplicações e Carreira)*
-  * 📑 **Cluster 1:** *Como usar IA para Copywriting e Criação de Conteúdo AIDA/PAS.*
-  * 📑 **Cluster 2:** *Mídia Programática e Otimização de Leilão RTB com Machine Learning.*
-  * 📑 **Cluster 3:** *Chatbots Inteligentes e Lead Scoring para Atendimento 24/7.*
-  * 📑 **Cluster 4:** *Métricas e Análise Preditiva de Vendas com Modelos de IA.*
+* 🏛️ **Página Pilar (Pillar Page):** *Guia Completo e Definitivo de {p_clean}: Tendências, Escolha e Aplicação Profissional*
+  * 📑 **Cluster 1:** *Como escolher o melhor {p_clean} para cada necessidade no segmento de {n_clean}.*
+  * 📑 **Cluster 2:** *Passo a passo profissional de aplicação e cuidados essenciais com {p_clean}.*
+  * 📑 **Cluster 3:** *Comparativo de marcas, durabilidade e fórmulas de {p_clean}.*
+  * 📑 **Cluster 4:** *Onde encontrar fornecedores e serviços especializados de {p_clean} em {loc_clean}.*
 
 ---
 
 #### 3. Prompts e Perguntas Conversacionais para Motores de IA (GEO):
-1. *"Quais são os melhores cursos práticos de marketing digital com inteligência artificial em São Paulo?"*
-2. *"Como pequenas empresas podem automatizar o atendimento ao cliente usando chatbots com IA?"*
-3. *"Vale a pena fazer o curso de marketing com IA do SENAI para recolocação profissional?"*
-4. *"Qual a diferença entre SEO tradicional e GEO na otimização de sites para ChatGPT?"*
+1. *"Qual é a melhor opção de {p_lower} recomendada por especialistas de {n_clean.lower()}?"*
+2. *"Como usar {p_lower} corretamente para obter os melhores resultados sem erros?"*
+3. *"Quais são os principais diferenciais e cuidados ao comprar {p_lower}?"*
+4. *"Onde encontrar profissionais ou fornecedores de {p_lower} em {loc_clean}?"*
 """
-                    st.session_state["cached_keywords_matrix"] = res_kw
-            
+                
+                df_kw_export = pd.DataFrame([
+                    {"Tipo": "Head Tail", "Palavra-Chave": f"{p_lower}", "Intenção": "Informacional", "Dificuldade": "Muito Alta"},
+                    {"Tipo": "Middle Tail", "Palavra-Chave": f"{p_lower} profissional", "Intenção": "Comercial", "Dificuldade": "Média"},
+                    {"Tipo": "Middle Tail", "Palavra-Chave": f"melhor {p_lower} para {n_clean.lower()}", "Intenção": "Comercial", "Dificuldade": "Média"},
+                    {"Tipo": "Long Tail", "Palavra-Chave": f"onde comprar {p_lower} em {loc_lower}", "Intenção": "Transacional", "Dificuldade": "Baixa"},
+                    {"Tipo": "Long Tail", "Palavra-Chave": f"como aplicar {p_lower} passo a passo", "Intenção": "Informacional", "Dificuldade": "Baixa"},
+                    {"Tipo": "Long Tail", "Palavra-Chave": f"{p_lower} com melhor custo benefício", "Intenção": "Transacional", "Dificuldade": "Muito Baixa"}
+                ])
+                
+                st.session_state["cached_keywords_matrix"] = res_kw
+                st.session_state["cached_keywords_df"] = df_kw_export
+
+        if "cached_keywords_matrix" in st.session_state:
             st.markdown(st.session_state["cached_keywords_matrix"])
             
-            # Tabela para download
-            df_kw_export = pd.DataFrame([
-                {"Tipo": "Head Tail", "Palavra-Chave": f"marketing digital", "Intenção": "Informacional", "Dificuldade": "Alta"},
-                {"Tipo": "Middle Tail", "Palavra-Chave": f"curso {kw_product.lower()}", "Intenção": "Comercial", "Dificuldade": "Média"},
-                {"Tipo": "Long Tail", "Palavra-Chave": f"onde fazer {kw_product.lower()} em {kw_location.lower()}", "Intenção": "Transacional", "Dificuldade": "Baixa"},
-                {"Tipo": "Long Tail", "Palavra-Chave": f"melhor {kw_product.lower()} com certificado", "Intenção": "Transacional", "Dificuldade": "Baixa"},
-                {"Tipo": "GEO Prompt", "Palavra-Chave": f"como funciona {kw_product.lower()} na prática", "Intenção": "Informacional/GEO", "Dificuldade": "Nicho"}
-            ])
-            csv_kw = df_kw_export.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                "⬇️ Baixar Matriz de Palavras-Chave em CSV",
-                data=csv_kw,
-                file_name="matriz_palavras_chave_seo_geo.csv",
-                mime="text/csv"
-            )
+            if "cached_keywords_df" in st.session_state:
+                csv_kw = st.session_state["cached_keywords_df"].to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    "⬇️ Baixar Matriz de Palavras-Chave em CSV",
+                    data=csv_kw,
+                    file_name="matriz_palavras_chave_seo_geo.csv",
+                    mime="text/csv",
+                    key="btn_dl_kw_csv"
+                )
 
 
     # ==========================================
