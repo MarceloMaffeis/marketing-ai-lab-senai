@@ -206,56 +206,96 @@ def analyze_lead_scoring_advanced(messages: list) -> dict:
         "classificacao": classificacao
     }
 
-def generate_chatbot_offline_reply(user_input: str, empresa: str, nome_bot: str, tom_bot: str, faq_conhecimento: str, history: list) -> str:
+def generate_chatbot_offline_reply(user_input: str, empresa: str, nome_bot: str, tom_bot: str, faq_conhecimento: str, history: list = None) -> str:
     """
-    Motor heurístico avançado com tratamento inteligente de objeções e recusas.
+    Motor heurístico avançado com interpretação dinâmica do FAQ/Base de Conhecimento,
+    adaptação ao tom de voz configurado e tratamento inteligente de objeções e recusas.
     """
     u_lower = user_input.lower().strip()
     
-    # 1. TRATAMENTO DE RECUSAS E DESINTERESSE ("Não quero nenhum desses", "não tenho interesse")
-    if any(w in u_lower for w in ["não quero", "nao quero", "nenhum desses", "não tenho interesse", "nao tenho interesse", "nem pensar", "desisto", "não serve"]):
-        return f"Entendo perfeitamente! 😊 Agradeço por me avisar. Que tipo de curso ou área profissional você está buscando no momento? Como o **SENAI** possui formações em diversas áreas industriais e de tecnologia, posso verificar se temos alguma outra opção futura que faça mais sentido para você!"
+    # Extrai as linhas do FAQ inserido pelo usuário
+    faq_lines = [line.strip().lstrip("•-*0123456789. ") for line in faq_conhecimento.split("\n") if line.strip()]
+    
+    # 1. TRATAMENTO DE RECUSAS E DESINTERESSE ("Não quero nenhum desses", "não tenho interesse", etc.)
+    padroes_recusa = [
+        "não quero", "nao quero", "nenhum desses", "nenhum desse", "não tenho interesse", "nao tenho interesse",
+        "nem pensar", "desisto", "não serve", "nao serve", "não gostei", "nao gostei", "não posso", "nao posso"
+    ]
+    if any(w in u_lower for w in padroes_recusa):
+        if "Vendedor" in tom_bot:
+            return f"Entendido! Compreendo que este momento pode não ser o mais oportuno. Posso deixar seu contato registrado para te avisar prioritariamente quando tivermos novas turmas ou condições especiais na **{empresa}**?"
+        elif "Técnico" in tom_bot:
+            return f"Registro de atendimento atualizado: interesse cancelado pelo usuário. Na **{empresa}**, novas turmas e cronogramas são abertos periodicamente. Caso necessite de dados técnicos futuros, estamos à disposição."
+        elif "Descontraído" in tom_bot:
+            return f"Tudo bem, sem problemas! 😉 Se mudar de ideia ou quiser conhecer outras novidades da **{empresa}**, é só me dar um alô por aqui!"
+        else: # Consultivo / Empático
+            return f"Entendo perfeitamente! 😊 Agradeço por me avisar. Que tipo de área ou objetivo profissional você está buscando no momento? Como a **{empresa}** possui formações diversificadas, posso te orientar sobre opções futuras que façam mais sentido para a sua carreira!"
 
     # 2. Objeção de Preço ("Muito caro", "Não tenho dinheiro")
     if any(w in u_lower for w in ["muito caro", "caro demais", "nao tenho dinheiro", "não tenho dinheiro", "sem grana", "fora do orçamento"]):
-        return f"Compreendo a sua preocupação com o orçamento. O curso de Marketing com IA pode ser parcelado em até **10x sem juros no cartão de crédito** ou com desconto especial no Pix. Além disso, temos programas de gratuidade e bolsas ao longo do ano na **{empresa}**. Gostaria que eu anotasse seu contato para avisar sobre novas bolsas?"
+        linhas_preco = [l for l in faq_lines if any(k in l.lower() for k in ["r$", "investimento", "pagamento", "cartão", "cartao", "parcela", "sem juros", "pix", "grátis", "gratuito", "bolsa"])]
+        info_preco = ("\n• " + "\n• ".join(linhas_preco)) if linhas_preco else "\nTemos opções de parcelamento facilitado no cartão e condições flexíveis."
+        return f"Compreendo a sua preocupação com o orçamento. Na **{empresa}**, buscamos sempre facilitar seu acesso ao conhecimento:{info_preco}\n\nAlém disso, temos programas de qualificação e condições especiais. Gostaria que eu registrasse seu contato para oportunidades promocionais?"
 
-    # 3. Perguntas sobre quais cursos existem / opções
-    if any(w in u_lower for w in ["quais cursos", "que cursos", "qual curso", "tem curso", "tem outros", "so tem", "só tem"]):
-        if any(w in u_lower for w in ["so tem", "só tem", "apenas"]):
-            return f"Além do curso de **Marketing Digital com IA (30h)**, nós também oferecemos turmas na área de **Automação Industrial** e programas corporativos sob demanda na **{empresa}**! Você teria interesse em alguma dessas áreas ou procura outro segmento?"
-        return f"Aqui na **{empresa}**, nossas turmas em destaque no momento são:\n• **Marketing Digital com Inteligência Artificial (30h)**\n• **Automação Industrial**\n\nQual dessas áreas mais chama a sua atenção para a sua carreira?"
+    # 3. Perguntas sobre quais cursos / opções existem
+    if any(w in u_lower for w in ["quais cursos", "que cursos", "qual curso", "tem curso", "tem outros", "so tem", "só tem", "quais opcoes", "quais opções", "o que tem", "catalogo", "catálogo", "cursos", "opções", "opcoes"]):
+        if faq_lines:
+            faq_resumo = "\n".join([f"• **{line}**" for line in faq_lines])
+            cta = "Qual dessas turmas podemos reservar para você hoje?" if "Vendedor" in tom_bot else "Qual dessas opções se encaixa melhor no seu momento profissional?"
+            return f"Aqui na **{empresa}**, nossas opções e detalhes disponíveis no momento são:\n\n{faq_resumo}\n\n{cta}"
+        else:
+            return f"Aqui na **{empresa}**, oferecemos formações de excelência! Como posso te direcionar para a área desejada?"
 
-    # 4. Perguntas sobre dias da semana / horários ("Somente nas segundas?", "Que horas?")
-    if any(w in u_lower for w in ["segundas", "dias", "quando", "horario", "horário", "noite", "semana"]):
-        return f"As aulas iniciam na próxima segunda-feira e acontecem durante a semana no período noturno, das **19h às 22h**, no laboratório da **{empresa}**. Esse formato noturno fica acessível para a sua rotina?"
+    # 4. Perguntas sobre horários / datas / quando começa
+    if any(w in u_lower for w in ["horario", "horário", "quando", "dias", "dia", "noite", "semana", "inicio", "início", "comeca", "começa", "horas", "carga horaria", "carga horária", "turno"]):
+        linhas_horario = [l for l in faq_lines if any(k in l.lower() for k in ["início", "inicio", "horário", "horario", "hs", "horas", "segunda", "terça", "quarta", "quinta", "sexta", "sábado", "noite", "manhã", "tarde", "2026", "2025", "/20"])]
+        if linhas_horario:
+            info_h = "\n• " + "\n• ".join(linhas_horario)
+            return f"Sobre o cronograma na **{empresa}**:\n{info_h}\n\nEsse horário e formato atendem à sua rotina?"
+        else:
+            return f"As turmas na **{empresa}** contam com opções de horários flexíveis. Gostaria de verificar a disponibilidade para algum turno específico?"
 
-    # 5. Cursos fora do FAQ (ex: CNC, solda, etc.)
-    if any(p in u_lower for p in ["cnc", "solda", "mecanica", "mecânica", "eletrica", "elétrica", "administracao", "administração", "python"]):
-        return f"No momento, aqui na **{empresa}**, as turmas abertas para matrícula imediata são as de **Marketing com IA** e **Automação**. Não temos turmas abertas para esse curso específico nesta semana, mas posso anotar seu contato caso abra uma turma futura! Gostaria de saber mais sobre as opções disponíveis?"
+    # 5. Preços e Valores
+    if any(w in u_lower for w in ["preco", "preço", "valor", "custa", "investimento", "pagamento", "cartao", "cartão", "parcela", "desconto", "pix", "boleto", "mensalidade"]):
+        linhas_preco = [l for l in faq_lines if any(k in l.lower() for k in ["r$", "investimento", "preço", "preco", "valor", "cartão", "cartao", "parcela", "juros", "pix", "grátis", "gratuito"])]
+        if linhas_preco:
+            info_p = "\n• " + "\n• ".join(linhas_preco)
+            return f"Em relação ao investimento na **{empresa}**:\n{info_p}\n\nPodemos avançar com a sua pré-inscrição para garantir o valor?"
+        else:
+            return f"Os valores e condições na **{empresa}** contam com parcelamento especial. Gostaria de receber os detalhes da proposta?"
 
-    # 6. Preços e Valores
-    if any(w in u_lower for w in ["preco", "preço", "valor", "custa", "investimento", "pagamento", "cartao", "cartão", "parcela", "desconto", "boleto"]):
-        return f"O investimento do curso é de **R$ 490,00**, facilitado em até **10x sem juros** no cartão de crédito! 💳 Também oferecemos desconto especial para pagamento à vista. Gostaria de garantir a sua vaga na turma?"
-
-    # 7. Certificado
+    # 6. Certificado
     if any(w in u_lower for w in ["certificado", "diploma", "reconhecido", "validade"]):
-        return f"Sim! Ao concluir as 30 horas práticas do curso você recebe o **Certificado Oficial do SENAI-SP**, com validade em todo o território nacional e alto reconhecimento na indústria. 📜"
+        linhas_cert = [l for l in faq_lines if any(k in l.lower() for k in ["certificado", "diploma", "oficial", "conclusão"])]
+        if linhas_cert:
+            return f"Sim! Na **{empresa}**: {linhas_cert[0]} 📜"
+        return f"Sim! Ao concluir a formação na **{empresa}**, você recebe o **Certificado Oficial**, com validade e alto reconhecimento no mercado de trabalho. 📜"
 
-    # 8. Saudações
-    if any(u_lower.startswith(w) or u_lower == w for w in ["ola", "olá", "oi", "bom dia", "boa tarde", "boa noite", "opa"]):
-        return f"Olá! Seja muito bem-vindo(a) à **{empresa}**! Sou a **{nome_bot}**. Como posso ajudar você hoje com as informações sobre nossos cursos e turmas?"
+    # 7. Saudações
+    if any(u_lower.startswith(w) or u_lower == w for w in ["ola", "olá", "oi", "bom dia", "boa tarde", "boa noite", "opa", "tudo bem"]):
+        return f"Olá! Seja muito bem-vindo(a) à **{empresa}**! Sou {nome_bot}. Como posso ajudar você hoje com as informações sobre nossas turmas e cursos?"
 
-    # 9. Intenção declarada de Matrícula (Sem negações)
-    if any(w in u_lower for w in ["quero me inscrever", "quero fazer", "como faco a matricula", "como faço a matrícula", "tenho interesse"]):
-        return f"Excelente escolha! 🚀 Para agilizarmos sua reserva de vaga na turma da **{empresa}**, por favor me informe seu **Nome completo e WhatsApp com DDD**."
+    # 8. Intenção declarada de Matrícula (Sem recusas)
+    if any(w in u_lower for w in ["quero me inscrever", "quero fazer", "como faco a matricula", "como faço a matrícula", "tenho interesse", "fazer inscrição", "fazer inscricao", "quero"]) and not any(r in u_lower for r in padroes_recusa):
+        return f"Excelente decisão! 🚀 Para agilizarmos sua reserva de vaga na **{empresa}**, por favor me informe seu **Nome completo e WhatsApp com DDD**."
 
-    # 10. Contato fornecido
+    # 9. Contato fornecido
     if "@" in u_lower or any(char.isdigit() for char in u_lower):
-        return f"Perfeito! Dados registrados com sucesso em nosso sistema de atendimento da **{empresa}**. 🎯 Nossa equipe entrará em contato via WhatsApp para concluir sua inscrição. Muito obrigado!"
+        return f"Perfeito! Dados registrados com sucesso em nosso sistema de atendimento da **{empresa}**. 🎯 Nossa equipe entrará em contato via WhatsApp para confirmar sua inscrição. Muito obrigado!"
+
+    # 10. Busca contextual direta nas linhas do FAQ
+    palavras_chave = [w for w in re.findall(r'\w+', u_lower) if len(w) >= 4 and w not in ["sobre", "para", "como", "voces", "vocês", "estou", "quero", "saber", "qual", "quais"]]
+    linhas_match = []
+    for line in faq_lines:
+        if any(kw in line.lower() for kw in palavras_chave):
+            linhas_match.append(line)
+            
+    if linhas_match:
+        res_match = "\n• " + "\n• ".join(linhas_match)
+        return f"Encontrei as seguintes informações sobre isso na base da **{empresa}**:\n{res_match}\n\nFicou alguma dúvida sobre esses detalhes?"
 
     # 11. Resposta fluida contextual
-    return f"Entendido! Na **{empresa}**, estou à disposição para te explicar qualquer detalhe sobre os conteúdos, dias de aula, valores ou formas de pagamento. O que mais você gostaria de saber?"
+    return f"Entendido! Na **{empresa}**, estou à disposição para te explicar qualquer detalhe sobre conteúdos, horários, valores ou metodologia. O que mais você gostaria de saber?"
 
 def generate_copy_offline(produto: str, publico: str, objetivo: str, tom: str, framework: str) -> dict:
     """Gera copies completas e estruturadas usando templates heurísticos ricos."""
