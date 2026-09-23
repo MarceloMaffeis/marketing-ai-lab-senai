@@ -115,7 +115,7 @@ Responda agora como a Persona, de forma extremamente humana, acolhedora, sensív
 def analyze_lead_scoring_advanced(messages: list) -> dict:
     """
     Analisa os sinais POSITIVOS e NEGATIVOS (Objeções/Recusas) do cliente
-    para calcular o Lead Scoring real balanceado (Net Score).
+    para calcular o Lead Scoring real balanceado (Net Score), aplicável a qualquer negócio.
     """
     user_msgs = [m["content"] for m in messages if m.get("role") == "user"]
     if not user_msgs:
@@ -139,61 +139,82 @@ def analyze_lead_scoring_advanced(messages: list) -> dict:
     # 1. Análise de Engajamento
     if len(user_msgs) >= 1:
         pontos_pos += 10
-        detalhes_pos.append(f"Engajamento inicial ({len(user_msgs)} msgs)")
+        detalhes_pos.append(f"Engajamento inicial ({len(user_msgs)} mensagens trocadas)")
     if len(user_msgs) >= 3:
         pontos_pos += 15
-        detalhes_pos.append("Diálogo contínuo e ativo")
+        detalhes_pos.append("Diálogo contínuo e ativo no atendimento")
         
-    # 2. DETECÇÃO DE SINAIS NEGATIVOS E RECUSAS (Subtrai pontos)
+    # 2. DETECÇÃO DE RECUSAS E BARREIRAS (Subtrai pontos)
     padroes_recusa = [
-        "não quero", "nao quero", "nenhum desses", "não tenho interesse", "nao tenho interesse",
-        "nem pensar", "muito caro", "caro demais", "fora do orçamento", "não gostei", "nao gostei",
+        "não quero", "nao quero", "nenhum desses", "nenhum desse", "não tenho interesse", "nao tenho interesse",
+        "nem pensar", "muito caro", "caro demais", "fora do orçamento", "fora do orcamento", "não gostei", "nao gostei",
         "não posso", "nao posso", "horrível", "desisto", "sem interesse", "não serve", "nao serve"
     ]
     
     recusas_encontradas = [p for p in padroes_recusa if p in texto_completo]
     if recusas_encontradas:
         pontos_neg += 45
-        detalhes_neg.append(f"Objeção/Recusa explícita: '{', '.join(recusas_encontradas)}'")
+        detalhes_neg.append(f"Objeção/Recusa explícita: '{', '.join(set(recusas_encontradas))}'")
         
-    if any(w in texto_completo for w in ["muito longe", "outra cidade", "horário ruim", "nao tenho tempo", "não tenho tempo"]):
+    if any(w in texto_completo for w in ["muito longe", "outra cidade", "horário ruim", "horario ruim", "demora muito", "prazo longo", "nao tenho tempo", "não tenho tempo"]):
         pontos_neg += 25
-        detalhes_neg.append("Impedimento de logística ou horário")
+        detalhes_neg.append("Impedimento de logística, distância ou prazo")
 
-    # 3. INTERESSE EM CONTEÚDO E HORÁRIOS (Apenas se não for recusa)
-    if any(w in texto_completo for w in ["marketing", "inteligencia", "inteligência", "ia", "automação", "automacao", "grade", "ementa", "aprender", "horario", "horário", "quando"]):
-        if not ("não quero" in texto_completo or "nenhum desses" in texto_completo):
-            pontos_pos += 25
-            detalhes_pos.append("Interesse no programa e grade do curso")
-            
-    # 4. SONDAGEM COMERCIAL (Preço, Pagamento)
-    if any(w in texto_completo for w in ["preco", "preço", "valor", "custa", "quanto", "pagamento", "cartao", "cartão", "parcela", "desconto", "investimento", "pix"]):
+    # 3. INTERESSE EM PRODUTOS / SERVIÇOS / SOLUÇÕES / CATÁLOGO
+    termos_interesse = [
+        "produto", "servico", "serviço", "catalogo", "catálogo", "cardapio", "cardápio", "modelo", "tamanho",
+        "opcao", "opção", "opcoes", "opções", "grade", "ementa", "curso", "plano", "imovel", "imóvel", "consulta",
+        "como funciona", "detalhes", "funciona", "especificacao", "especificação", "aprender"
+    ]
+    if any(w in texto_completo for w in termos_interesse) and not recusas_encontradas:
         pontos_pos += 25
-        detalhes_pos.append("Interesse financeiro e formas de pagamento")
+        detalhes_pos.append("Interesse ativo no catálogo de produtos, serviços ou soluções")
+            
+    # 4. SONDAGEM COMERCIAL (Preço, Pagamento, Investimento)
+    termos_preco = [
+        "preco", "preço", "valor", "custa", "quanto", "pagamento", "cartao", "cartão", "parcela",
+        "desconto", "investimento", "pix", "taxa", "mensalidade", "a vista", "à vista", "condicoes", "condições"
+    ]
+    if any(w in texto_completo for w in termos_preco):
+        pontos_pos += 25
+        detalhes_pos.append("Sondagem comercial: Consulta de valores e formas de pagamento")
         
-    # 5. INTENÇÃO POSITIVA DE MATRÍCULA (Verifica que NÃO é precedido por 'não')
-    # Regex para pegar "quero" apenas quando NÃO for "não quero"
-    tem_quero_positivo = bool(re.search(r'(?<!não\s)(?<!nao\s)\b(quero|tenho interesse|gostaria|fazer matrícula|me inscrever)\b', texto_completo))
+    # 5. CONSULTA DE LOGÍSTICA / AGENDAMENTO / HORÁRIOS / DISPONIBILIDADE
+    termos_agenda = [
+        "horario", "horário", "quando", "dias", "dia", "endereco", "endereço", "onde fica", "localizacao",
+        "localização", "entrega", "frete", "prazo", "agendar", "agenda", "vaga", "disponivel", "disponível"
+    ]
+    if any(w in texto_completo for w in termos_agenda) and not recusas_encontradas:
+        pontos_pos += 15
+        detalhes_pos.append("Consulta de disponibilidade, horários, prazos ou logística")
+        
+    # 6. INTENÇÃO DE COMPRA / AGENDAMENTO / FECHAMENTO (Sem recusas prévias)
+    padroes_conversao = [
+        "quero comprar", "quero agendar", "quero fechar", "quero contratar", "quero fazer", "tenho interesse",
+        "vou querer", "como faco o pedido", "como faço o pedido", "fazer reserva", "fazer matricula", "fazer matrícula",
+        "me inscrever", "quero esse", "quero um", "comprar agora", "fechar pedido", "garantir"
+    ]
+    tem_conversao = any(p in texto_completo for p in padroes_conversao)
     tem_contato = "@" in texto_completo or any(char.isdigit() for char in texto_completo)
     
-    if (tem_quero_positivo and not recusas_encontradas) or tem_contato:
+    if (tem_conversao and not recusas_encontradas) or tem_contato:
         pontos_pos += 30
-        detalhes_pos.append("Intenção de compra declarada / Contato informado")
+        detalhes_pos.append("Alta intenção de conversão / Dados de contato fornecidos")
         
     # Cálculo Final do Net Score (Equilíbrio entre Positivos e Penalidades)
     score_liquido = max(5, min(100, pontos_pos - pontos_neg))
     
     if pontos_neg >= 40:
-        classificacao = f"⚠️ Objeção Ativa / Lead Desqualificado ({score_liquido}/100)"
+        classificacao = f"⚠️ Objeção Ativa / Lead em Risco ({score_liquido}/100): Necessita contorno de objeção."
         status = "Objeção Ativa"
     elif score_liquido >= 75:
-        classificacao = f"🔥 Lead Quente / SQL ({score_liquido}/100): Alta intenção de compra!"
+        classificacao = f"🔥 Lead Quente / SQL ({score_liquido}/100): Alta prontidão de compra/agendamento!"
         status = "Lead Quente"
     elif score_liquido >= 40:
         classificacao = f"🌤️ Lead Morno / MQL ({score_liquido}/100): Em fase de pesquisa e qualificação."
         status = "Lead Morno"
     else:
-        classificacao = f"❄️ Lead Frio ({score_liquido}/100): Contato inicial ou sem foco de compra."
+        classificacao = f"❄️ Lead Frio ({score_liquido}/100): Contato inicial ou sem intenção declarada."
         status = "Lead Frio"
         
     return {
@@ -206,85 +227,98 @@ def analyze_lead_scoring_advanced(messages: list) -> dict:
         "classificacao": classificacao
     }
 
-def generate_chatbot_offline_reply(user_input: str, empresa: str, nome_bot: str, tom_bot: str, faq_conhecimento: str, history: list = None) -> str:
+def generate_chatbot_offline_reply(
+    user_input: str,
+    empresa: str,
+    nome_bot: str,
+    tom_bot: str,
+    faq_conhecimento: str,
+    history: list = None,
+    papel_bot: str = "Consultor(a) de Atendimento",
+    segmento: str = "Geral"
+) -> str:
     """
-    Motor heurístico avançado com interpretação dinâmica do FAQ/Base de Conhecimento,
-    adaptação ao tom de voz configurado e tratamento inteligente de objeções e recusas.
+    Motor RAG heurístico avançado com interpretação dinâmica da Base de Conhecimento,
+    adaptação universal para qualquer nicho de negócio, persona e tratamento de objeções.
     """
     u_lower = user_input.lower().strip()
     
-    # Extrai as linhas do FAQ inserido pelo usuário
+    # Extrai e limpa as linhas da Base de Conhecimento (RAG)
     faq_lines = [line.strip().lstrip("•-*0123456789. ") for line in faq_conhecimento.split("\n") if line.strip()]
     
-    # 1. TRATAMENTO DE RECUSAS E DESINTERESSE ("Não quero nenhum desses", "não tenho interesse", etc.)
+    # 1. TRATAMENTO DE RECUSAS E DESINTERESSE ("Não quero", "não tenho interesse", etc.)
     padroes_recusa = [
         "não quero", "nao quero", "nenhum desses", "nenhum desse", "não tenho interesse", "nao tenho interesse",
         "nem pensar", "desisto", "não serve", "nao serve", "não gostei", "nao gostei", "não posso", "nao posso"
     ]
     if any(w in u_lower for w in padroes_recusa):
         if "Vendedor" in tom_bot:
-            return f"Entendido! Compreendo que este momento pode não ser o mais oportuno. Posso deixar seu contato registrado para te avisar prioritariamente quando tivermos novas turmas ou condições especiais na **{empresa}**?"
+            return f"Entendido! Compreendo perfeitamente. Posso registrar seu contato para avisar com prioridade quando tivermos novas opções, lançamentos ou condições promocionais na **{empresa}**?"
         elif "Técnico" in tom_bot:
-            return f"Registro de atendimento atualizado: interesse cancelado pelo usuário. Na **{empresa}**, novas turmas e cronogramas são abertos periodicamente. Caso necessite de dados técnicos futuros, estamos à disposição."
+            return f"Atendimento atualizado: registro finalizado sem interesse neste momento. Na **{empresa}**, novos itens e especificações são atualizados periodicamente. À disposição."
         elif "Descontraído" in tom_bot:
-            return f"Tudo bem, sem problemas! 😉 Se mudar de ideia ou quiser conhecer outras novidades da **{empresa}**, é só me dar um alô por aqui!"
+            return f"Tudo bem, sem problemas! 😉 Se mudar de ideia ou quiser tirar qualquer outra dúvida na **{empresa}**, é só me chamar por aqui. Tenha um ótimo dia!"
+        elif "Luxo" in tom_bot:
+            return f"Agradecemos pela sua atenção. Na **{empresa}**, permanecemos à sua inteira disposição para quando desejar uma experiência exclusiva."
         else: # Consultivo / Empático
-            return f"Entendo perfeitamente! 😊 Agradeço por me avisar. Que tipo de área ou objetivo profissional você está buscando no momento? Como a **{empresa}** possui formações diversificadas, posso te orientar sobre opções futuras que façam mais sentido para a sua carreira!"
+            return f"Entendo perfeitamente! 😊 Agradeço por me avisar. Que tipo de produto, serviço ou solução você está buscando no momento? Na **{empresa}**, posso te orientar caso tenhamos novidades futuras alinhadas à sua necessidade!"
 
     # 2. Objeção de Preço ("Muito caro", "Não tenho dinheiro")
-    if any(w in u_lower for w in ["muito caro", "caro demais", "nao tenho dinheiro", "não tenho dinheiro", "sem grana", "fora do orçamento"]):
-        linhas_preco = [l for l in faq_lines if any(k in l.lower() for k in ["r$", "investimento", "pagamento", "cartão", "cartao", "parcela", "sem juros", "pix", "grátis", "gratuito", "bolsa"])]
-        info_preco = ("\n• " + "\n• ".join(linhas_preco)) if linhas_preco else "\nTemos opções de parcelamento facilitado no cartão e condições flexíveis."
-        return f"Compreendo a sua preocupação com o orçamento. Na **{empresa}**, buscamos sempre facilitar seu acesso ao conhecimento:{info_preco}\n\nAlém disso, temos programas de qualificação e condições especiais. Gostaria que eu registrasse seu contato para oportunidades promocionais?"
+    if any(w in u_lower for w in ["muito caro", "caro demais", "nao tenho dinheiro", "não tenho dinheiro", "sem grana", "fora do orçamento", "fora do orcamento"]):
+        linhas_preco = [l for l in faq_lines if any(k in l.lower() for k in ["r$", "investimento", "preço", "preco", "pagamento", "cartão", "cartao", "parcela", "sem juros", "pix", "grátis", "gratuito", "desconto", "taxa"])]
+        info_preco = ("\n• " + "\n• ".join(linhas_preco)) if linhas_preco else "\nTemos opções de parcelamento facilitado e condições flexíveis de pagamento."
+        return f"Compreendo a sua preocupação com o orçamento! Na **{empresa}**, buscamos sempre facilitar as condições:{info_preco}\n\nGostaria que eu verificasse uma condição personalizada ou opção de entrada mais acessível para você?"
 
-    # 3. Perguntas sobre quais cursos / opções existem
-    if any(w in u_lower for w in ["quais cursos", "que cursos", "qual curso", "tem curso", "tem outros", "so tem", "só tem", "quais opcoes", "quais opções", "o que tem", "catalogo", "catálogo", "cursos", "opções", "opcoes"]):
+    # 3. Perguntas sobre Catálogo / Opções / O que oferecem / Cardápio / Serviços
+    termos_catalogo = ["quais produtos", "quais servicos", "quais serviços", "quais cursos", "que produtos", "que servicos", "que serviços", "o que tem", "o que voces tem", "o que vocês têm", "catalogo", "catálogo", "cardapio", "cardápio", "opcoes", "opções", "quais sao", "quais são", "tem opcao", "tem opção", "trabalham com"]
+    if any(w in u_lower for w in termos_catalogo) or u_lower in ["produtos", "serviços", "servicos", "cursos", "cardapio", "cardápio", "opcoes"]:
         if faq_lines:
             faq_resumo = "\n".join([f"• **{line}**" for line in faq_lines])
-            cta = "Qual dessas turmas podemos reservar para você hoje?" if "Vendedor" in tom_bot else "Qual dessas opções se encaixa melhor no seu momento profissional?"
-            return f"Aqui na **{empresa}**, nossas opções e detalhes disponíveis no momento são:\n\n{faq_resumo}\n\n{cta}"
+            cta = "Qual dessas opções podemos reservar ou preparar para você hoje?" if "Vendedor" in tom_bot else "Qual dessas opções melhor atende o que você está procurando?"
+            return f"Aqui na **{empresa}**, nossas principais opções e informações disponíveis são:\n\n{faq_resumo}\n\n{cta}"
         else:
-            return f"Aqui na **{empresa}**, oferecemos formações de excelência! Como posso te direcionar para a área desejada?"
+            return f"Aqui na **{empresa}**, oferecemos soluções sob medida! Como posso te direcionar para a opção desejada?"
 
-    # 4. Perguntas sobre horários / datas / quando começa
-    if any(w in u_lower for w in ["horario", "horário", "quando", "dias", "dia", "noite", "semana", "inicio", "início", "comeca", "começa", "horas", "carga horaria", "carga horária", "turno"]):
-        linhas_horario = [l for l in faq_lines if any(k in l.lower() for k in ["início", "inicio", "horário", "horario", "hs", "horas", "segunda", "terça", "quarta", "quinta", "sexta", "sábado", "noite", "manhã", "tarde", "2026", "2025", "/20"])]
+    # 4. Perguntas sobre Horários / Datas / Prazos / Início / Endereço / Localização / Frete
+    if any(w in u_lower for w in ["horario", "horário", "quando", "dias", "dia", "noite", "semana", "inicio", "início", "comeca", "começa", "horas", "prazo", "entrega", "frete", "onde fica", "endereco", "endereço", "localizacao", "localização", "turno"]):
+        linhas_horario = [l for l in faq_lines if any(k in l.lower() for k in ["início", "inicio", "horário", "horario", "hs", "horas", "segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo", "noite", "manhã", "tarde", "entrega", "prazo", "frete", "endereço", "endereco", "rua", "av", "local", "sedex", "pac"])]
         if linhas_horario:
             info_h = "\n• " + "\n• ".join(linhas_horario)
-            return f"Sobre o cronograma na **{empresa}**:\n{info_h}\n\nEsse horário e formato atendem à sua rotina?"
+            return f"Sobre horários, prazos e localização na **{empresa}**:\n{info_h}\n\nEssas condições atendem à sua necessidade?"
         else:
-            return f"As turmas na **{empresa}** contam com opções de horários flexíveis. Gostaria de verificar a disponibilidade para algum turno específico?"
+            return f"Na **{empresa}**, contamos com horários e prazos flexíveis de atendimento. Gostaria de confirmar a disponibilidade para algum dia ou turno específico?"
 
-    # 5. Preços e Valores
-    if any(w in u_lower for w in ["preco", "preço", "valor", "custa", "investimento", "pagamento", "cartao", "cartão", "parcela", "desconto", "pix", "boleto", "mensalidade"]):
-        linhas_preco = [l for l in faq_lines if any(k in l.lower() for k in ["r$", "investimento", "preço", "preco", "valor", "cartão", "cartao", "parcela", "juros", "pix", "grátis", "gratuito"])]
+    # 5. Preços e Valores / Formas de Pagamento
+    if any(w in u_lower for w in ["preco", "preço", "valor", "custa", "investimento", "pagamento", "cartao", "cartão", "parcela", "desconto", "pix", "boleto", "mensalidade", "quanto custa"]):
+        linhas_preco = [l for l in faq_lines if any(k in l.lower() for k in ["r$", "investimento", "preço", "preco", "valor", "cartão", "cartao", "parcela", "juros", "pix", "grátis", "gratuito", "desconto", "taxa", "mensalidade"])]
         if linhas_preco:
             info_p = "\n• " + "\n• ".join(linhas_preco)
-            return f"Em relação ao investimento na **{empresa}**:\n{info_p}\n\nPodemos avançar com a sua pré-inscrição para garantir o valor?"
+            return f"Em relação a valores e pagamento na **{empresa}**:\n{info_p}\n\nPodemos dar andamento no seu pedido ou agendamento?"
         else:
-            return f"Os valores e condições na **{empresa}** contam com parcelamento especial. Gostaria de receber os detalhes da proposta?"
+            return f"Os valores e condições na **{empresa}** contam com opções facilitadas. Gostaria de receber uma proposta detalhada?"
 
-    # 6. Certificado
-    if any(w in u_lower for w in ["certificado", "diploma", "reconhecido", "validade"]):
-        linhas_cert = [l for l in faq_lines if any(k in l.lower() for k in ["certificado", "diploma", "oficial", "conclusão"])]
-        if linhas_cert:
-            return f"Sim! Na **{empresa}**: {linhas_cert[0]} 📜"
-        return f"Sim! Ao concluir a formação na **{empresa}**, você recebe o **Certificado Oficial**, com validade e alto reconhecimento no mercado de trabalho. 📜"
+    # 6. Garantia / Certificado / Política de Troca / Requisitos
+    if any(w in u_lower for w in ["garantia", "troca", "devolucao", "devolução", "certificado", "diploma", "requisito", "requisitos", "qualidade"]):
+        linhas_garantia = [l for l in faq_lines if any(k in l.lower() for k in ["garantia", "troca", "certificado", "diploma", "requisito", "oficial", "validade", "conclusão"])]
+        if linhas_garantia:
+            return f"Sim! Na **{empresa}**: {linhas_garantia[0]} ✨"
+        return f"Com certeza! Na **{empresa}**, garantimos total qualidade, procedência e suporte em todos os nossos atendimentos."
 
     # 7. Saudações
-    if any(u_lower.startswith(w) or u_lower == w for w in ["ola", "olá", "oi", "bom dia", "boa tarde", "boa noite", "opa", "tudo bem"]):
-        return f"Olá! Seja muito bem-vindo(a) à **{empresa}**! Sou {nome_bot}. Como posso ajudar você hoje com as informações sobre nossas turmas e cursos?"
+    if any(u_lower.startswith(w) or u_lower == w for w in ["ola", "olá", "oi", "bom dia", "boa tarde", "boa noite", "opa", "tudo bem", "e ai", "e aí"]):
+        return f"Olá! Seja muito bem-vindo(a) à **{empresa}**! Sou {nome_bot}, {papel_bot.lower()}. Como posso te ajudar hoje com nossos produtos e serviços?"
 
-    # 8. Intenção declarada de Matrícula (Sem recusas)
-    if any(w in u_lower for w in ["quero me inscrever", "quero fazer", "como faco a matricula", "como faço a matrícula", "tenho interesse", "fazer inscrição", "fazer inscricao", "quero"]) and not any(r in u_lower for r in padroes_recusa):
-        return f"Excelente decisão! 🚀 Para agilizarmos sua reserva de vaga na **{empresa}**, por favor me informe seu **Nome completo e WhatsApp com DDD**."
+    # 8. Intenção declarada de Compra / Agendamento / Contratação (Sem recusas)
+    padroes_compra = ["quero comprar", "quero agendar", "quero fechar", "como faco o pedido", "como faço o pedido", "fazer reserva", "quero me inscrever", "quero fazer", "tenho interesse", "fazer pedido", "quero contratar", "quero"]
+    if any(w in u_lower for w in padroes_compra) and not any(r in u_lower for r in padroes_recusa):
+        return f"Excelente escolha! 🚀 Para agilizarmos seu atendimento e reserva na **{empresa}**, por favor me informe seu **Nome completo e WhatsApp com DDD**."
 
-    # 9. Contato fornecido
+    # 9. Contato fornecido (WhatsApp, E-mail, Telefone)
     if "@" in u_lower or any(char.isdigit() for char in u_lower):
-        return f"Perfeito! Dados registrados com sucesso em nosso sistema de atendimento da **{empresa}**. 🎯 Nossa equipe entrará em contato via WhatsApp para confirmar sua inscrição. Muito obrigado!"
+        return f"Perfeito! Dados registrados com sucesso em nosso sistema da **{empresa}**. 🎯 Nossa equipe entrará em contato via WhatsApp para confirmar os detalhes. Muito obrigado pela preferência!"
 
-    # 10. Busca contextual direta nas linhas do FAQ
-    palavras_chave = [w for w in re.findall(r'\w+', u_lower) if len(w) >= 4 and w not in ["sobre", "para", "como", "voces", "vocês", "estou", "quero", "saber", "qual", "quais"]]
+    # 10. Busca Semântica Contextual nas Linhas da Base de Conhecimento (RAG)
+    palavras_chave = [w for w in re.findall(r'\w+', u_lower) if len(w) >= 3 and w not in ["sobre", "para", "como", "voces", "vocês", "estou", "quero", "saber", "qual", "quais", "onde", "quando", "tem", "uma", "esse", "essa"]]
     linhas_match = []
     for line in faq_lines:
         if any(kw in line.lower() for kw in palavras_chave):
@@ -292,10 +326,10 @@ def generate_chatbot_offline_reply(user_input: str, empresa: str, nome_bot: str,
             
     if linhas_match:
         res_match = "\n• " + "\n• ".join(linhas_match)
-        return f"Encontrei as seguintes informações sobre isso na base da **{empresa}**:\n{res_match}\n\nFicou alguma dúvida sobre esses detalhes?"
+        return f"Encontrei as seguintes informações sobre isso na base da **{empresa}**:\n{res_match}\n\nFicou alguma dúvida ou gostaria de avançar?"
 
     # 11. Resposta fluida contextual
-    return f"Entendido! Na **{empresa}**, estou à disposição para te explicar qualquer detalhe sobre conteúdos, horários, valores ou metodologia. O que mais você gostaria de saber?"
+    return f"Entendido! Na **{empresa}**, estou à disposição para te explicar qualquer detalhe sobre produtos, serviços, valores, prazos ou formas de pagamento. Como posso te auxiliar?"
 
 def generate_copy_offline(produto: str, publico: str, objetivo: str, tom: str, framework: str) -> dict:
     """Gera copies completas e estruturadas usando templates heurísticos ricos."""
