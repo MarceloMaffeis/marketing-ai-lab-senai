@@ -185,11 +185,12 @@ KPIS_DATABASE = {
     }
 }
 
-tab_dict, tab_calc, tab_ai, tab_export = st.tabs([
-    "📚 Dicionário Didático dos 18 KPIs",
-    "🧮 Calculadora & Simulador Prático",
-    "🤖 Gerador de Metas SMART com IA",
-    "📥 Exportar Dicionário & Planejamento"
+tab_dict, tab_calc, tab_utm, tab_ai, tab_export = st.tabs([
+    "📚 1. Dicionário dos 18 KPIs",
+    "🧮 2. Calculadora & Diagnóstico",
+    "🔗 3. Gerador de URLs UTM (Google Analytics 4)",
+    "🤖 4. Metas SMART com IA",
+    "📥 5. Exportar Guia & Planejamento"
 ])
 
 # ==============================================================================
@@ -326,8 +327,57 @@ with tab_calc:
             else:
                 col_m2.error("🔴 **Inviável no Longo Prazo:** O custo para adquirir o cliente consome quase todo o lucro gerado.")
 
+import urllib.parse
+
 # ==============================================================================
-# ABA 3: GERADOR DE METAS SMART COM IA
+# ABA 3: GERADOR DE PARÂMETROS UTM (GOOGLE ANALYTICS 4)
+# ==============================================================================
+with tab_utm:
+    st.subheader("🔗 Gerador Inteligente de Parâmetros UTM (Google Analytics 4)")
+    st.caption("O rastreamento por UTM é o método padrão da indústria para medir exatamente de qual anúncio, rede social, influencer ou e-mail veio cada lead e venda no GA4.")
+    
+    col_u1, col_u2 = st.columns(2)
+    with col_u1:
+        base_url = st.text_input("🌐 URL de Destino do Site / Landing Page:", value="https://www.sp.senai.br/unidade/sorocaba/")
+        utm_source = st.selectbox(
+            "Origem da Campanha (`utm_source`):",
+            ["google", "instagram", "facebook", "linkedin", "tiktok", "whatsapp", "newsletter", "youtube", "influencer_x", "qr_code_cartaz"]
+        )
+        utm_medium = st.selectbox(
+            "Mídia / Canal (`utm_medium`):",
+            ["cpc (anúncio pago)", "stories", "feed_organico", "reels", "email_marketing", "display_banner", "bio_link", "mensagem_direta"]
+        )
+    with col_u2:
+        utm_campaign = st.text_input("Nome da Campanha (`utm_campaign`):", value="matriculas_marketing_ia_2026", help="Identifica a campanha específica.")
+        utm_content = st.text_input("Conteúdo do Anúncio (`utm_content` - Opcional):", value="banner_azul_chamada_cta", help="Diferencia versões do criativo (Teste A/B).")
+        utm_term = st.text_input("Termo de Busca / Palavra-Chave (`utm_term` - Opcional):", value="curso marketing senai", help="Usado em anúncios de pesquisa do Google Ads.")
+
+    clean_medium = utm_medium.split()[0].strip()
+    
+    # Construção da URL UTM
+    params = []
+    if utm_source: params.append(f"utm_source={urllib.parse.quote_plus(utm_source)}")
+    if clean_medium: params.append(f"utm_medium={urllib.parse.quote_plus(clean_medium)}")
+    if utm_campaign: params.append(f"utm_campaign={urllib.parse.quote_plus(utm_campaign)}")
+    if utm_content: params.append(f"utm_content={urllib.parse.quote_plus(utm_content)}")
+    if utm_term: params.append(f"utm_term={urllib.parse.quote_plus(utm_term)}")
+    
+    join_char = "&" if "?" in base_url else "?"
+    final_tracked_url = f"{base_url}{join_char}{'&'.join(params)}"
+    
+    st.markdown("##### 🎯 Link Rastreável Gerado para o Google Analytics 4:")
+    st.code(final_tracked_url, language="text")
+    
+    c_utm_b1, c_utm_b2 = st.columns(2)
+    with c_utm_b1:
+        st.link_button("🚀 Testar e Abrir Link em Nova Aba ↗", final_tracked_url, use_container_width=True)
+    with c_utm_b2:
+        st.link_button("📊 Acessar Painel do Google Analytics 4 (GA4) ↗", "https://analytics.google.com/", use_container_width=True)
+        
+    st.info("💡 **Dica Pedagógica:** No GA4, vá em **Relatórios > Aquisição > Aquisição de Tráfego** para visualizar sessões, engajamento e conversões agrupados por cada uma das suas UTMs!")
+
+# ==============================================================================
+# ABA 4: GERADOR DE METAS SMART COM IA
 # ==============================================================================
 with tab_ai:
     st.subheader("🤖 Planejamento de Metas SMART com Inteligência Artificial")

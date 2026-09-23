@@ -910,9 +910,10 @@ A metodologia prática focada nas exigências da indústria 4.0, garantindo ráp
         st.subheader("📍 Geomarketing & SEO Local")
         st.caption("Cerca de **46% de todas as buscas no Google** possuem intenção geográfica local (*'perto de mim'*, bairros, cidades). Otimize a presença regional, gere dados estruturados de **LocalBusiness** e simule o alcance por raio em KM.")
         
-        geo_sub_tab1, geo_sub_tab2, geo_sub_tab3 = st.tabs([
+        geo_sub_tab1, geo_sub_tab2, geo_sub_tab3, geo_sub_tab4 = st.tabs([
             "🛠️ Gerador de Schema.org LocalBusiness (JSON-LD)",
             "📋 Checklist de Google Perfil de Empresas & NAP",
+            "🏢 Google Meu Negócio: Posts & Resposta a Reviews com IA",
             "🎯 Simulador de Raio de Atuação & Conversão Local"
         ])
 
@@ -976,6 +977,21 @@ A metodologia prática focada nas exigências da indústria 4.0, garantindo ráp
 
             st.markdown("##### 📄 Código JSON-LD Gerado (Copie e cole dentro da tag `<head>` do seu site):")
             st.code(schema_html_block, language="html")
+            
+            c_val1, c_val2 = st.columns(2)
+            with c_val1:
+                st.link_button(
+                    "🧪 Testar no Validador Oficial de Rich Results do Google ↗",
+                    "https://search.google.com/test/rich-results",
+                    use_container_width=True,
+                    help="Abre o validador oficial do Google para colar o código ou URL"
+                )
+            with c_val2:
+                st.link_button(
+                    "🛡️ Validador Schema.org Oficial ↗",
+                    "https://validator.schema.org/",
+                    use_container_width=True
+                )
             st.info("💡 **Dica Pedagógica:** Este código permite que o Google exiba o painel de conhecimento local enriquecido, mapa no Google Maps e botões de 'Ligar' e 'Como Chegar' diretamente na SERP.")
 
         with geo_sub_tab2:
@@ -998,6 +1014,64 @@ A metodologia prática focada nas exigências da indústria 4.0, garantindo ráp
                 st.warning("⚠️ Atenção: complete os itens pendentes do checklist para subir no ranking do Google Maps.")
 
         with geo_sub_tab3:
+            st.markdown("#### 🏢 Google Meu Negócio: Gerador de Posts & Respostas a Avaliações")
+            st.write("Mantenha o perfil no Google Maps ativo semanalmente e responda a clientes com empatia e técnica usando IA:")
+            
+            col_gmb1, col_gmb2 = st.columns(2)
+            with col_gmb1:
+                st.markdown("##### 📢 1. Criador de Atualização Semanal / Oferta (Post no Google)")
+                gmb_tipo_post = st.selectbox("Tipo de Post:", ["Novidade / Atualização", "Oferta / Desconto Especial", "Evento / Matrículas Abertas"])
+                gmb_tema = st.text_input("Tema / Destaque do Post:", value="Novas turmas de Marketing com IA e bolsas abertas")
+                
+                if st.button("✨ Gerar Post para o Google Meu Negócio com IA", use_container_width=True):
+                    prompt_gmb = f"""
+                    Crie um post profissional e persuasivo para o Google Meu Negócio (Perfil da Empresa no Google).
+                    Empresa: {lb_name}
+                    Tipo: {gmb_tipo_post}
+                    Tema: {gmb_tema}
+                    
+                    Diretrizes:
+                    - Texto de 80 a 120 palavras, direto ao ponto.
+                    - Inclua 3 emojis chamativos e uma Chamada para Ação (CTA) clara (Ex: 'Saiba Mais', 'Ligue Agora', 'Reserve sua Vaga').
+                    - Adicione 3 hashtags estratégicas locais.
+                    """
+                    with st.spinner("Gerando post com IA..."):
+                        res_gmb = generate_text_ai(prompt_gmb, "Você é um especialista em SEO Local e Google Meu Negócio.")
+                        if not res_gmb:
+                            res_gmb = f"""🔥 **Grandes oportunidades de capacitação profissional na {lb_name}!**\n\nEstão abertas as inscrições para nossas novas turmas presenciais com laboratórios de ponta e foco total nas demandas da indústria moderna. Não perca a chance de transformar sua carreira e conquistar novas oportunidades no mercado de trabalho! 🚀\n\n👉 **Clique no botão abaixo ou envie uma mensagem para garantir sua vaga hoje mesmo!**\n\n#CapacitaçãoProfissional #SENAI #SucessoNaCarreira"""
+                        st.success("Post gerado com sucesso!")
+                        st.markdown(f"```markdown\n{res_gmb}\n```")
+
+            with col_gmb2:
+                st.markdown("##### ⭐ 2. Gerador de Respostas a Avaliações (Reviews)")
+                rev_tipo = st.radio("Tipo de Avaliação Recebida:", ["⭐⭐⭐⭐⭐ Elogio (5 Estrelas)", "⭐ Crítica / Reclamação (1-2 Estrelas)"])
+                rev_texto = st.text_area(
+                    "Comentário do Cliente no Google:",
+                    value="Adorei o atendimento e a infraestrutura! Os professores são excelentes." if "5" in rev_tipo else "Demorou muito para responderem no WhatsApp e não encontrei vaga no estacionamento."
+                )
+                
+                if st.button("💬 Gerar Resposta Profissional com IA", use_container_width=True):
+                    prompt_rev = f"""
+                    Você é o Gerente de Relacionamento da empresa {lb_name}.
+                    Escreva uma resposta oficial para a seguinte avaliação de cliente no Google Maps:
+                    Tipo de Avaliação: {rev_tipo}
+                    Comentário do Cliente: "{rev_texto}"
+                    
+                    Diretrizes de Tom:
+                    - Para 5 estrelas: Agradeça pelo carinho, personalize citando o ponto elogiado e reforce que a casa estará sempre de portas abertas.
+                    - Para 1-2 estrelas: Acolha com extrema empatia e humildade, NUNCA discuta ou seja defensivo, peça desculpas pelo transtorno e forneça um canal direto (e-mail/WhatsApp da gerência) para solucionar o caso imediatamente.
+                    """
+                    with st.spinner("Elaborando resposta com IA..."):
+                        res_rev = generate_text_ai(prompt_rev, "Você é um especialista em gestão de crises e reputação de marca no Google.")
+                        if not res_rev:
+                            if "5" in rev_tipo:
+                                res_rev = f"Olá! Ficamos muito felizes com o seu reconhecimento e carinho! 🌟 Nosso compromisso na {lb_name} é entregar sempre a melhor experiência educacional e prática para sua trajetória. Será um prazer recebê-lo(a) novamente em nossa unidade!"
+                            else:
+                                res_rev = f"Olá, lamentamos sinceramente pela sua experiência. Esse não é o padrão de atendimento que buscamos oferecer na {lb_name}. Gostaríamos muito de entender melhor o ocorrido e encontrar uma solução imediata. Por favor, entre em contato diretamente com nossa coordenação pelo telefone {lb_phone} ou venha conversar conosco. Estamos à disposição para melhor atendê-lo(a)."
+                        st.info("Sugestão de Resposta Oficial para o Google Maps:")
+                        st.write(f"💬 *\"{res_rev}\"*")
+
+        with geo_sub_tab4:
             st.markdown("#### 🎯 Simulador de Raio de Atuação e Conversão Local (Geofencing)")
             st.write("Simule o impacto de campanhas de tráfego pago e orgânico regionalizadas por raio geográfico ao redor do ponto físico:")
             
@@ -1132,19 +1206,31 @@ A metodologia prática focada nas exigências da indústria 4.0, garantindo ráp
                 
                 st.session_state["cached_keywords_matrix"] = res_kw
                 st.session_state["cached_keywords_df"] = df_kw_export
+                st.session_state["cached_kw_term"] = p_clean
 
         if "cached_keywords_matrix" in st.session_state:
             st.markdown(st.session_state["cached_keywords_matrix"])
             
-            if "cached_keywords_df" in st.session_state:
-                csv_kw = st.session_state["cached_keywords_df"].to_csv(index=False).encode('utf-8')
-                st.download_button(
-                    "⬇️ Baixar Matriz de Palavras-Chave em CSV",
-                    data=csv_kw,
-                    file_name="matriz_palavras_chave_seo_geo.csv",
-                    mime="text/csv",
-                    key="btn_dl_kw_csv"
+            c_kw_btn1, c_kw_btn2 = st.columns(2)
+            with c_kw_btn1:
+                kw_term_saved = st.session_state.get("cached_kw_term", "Marketing Digital")
+                st.link_button(
+                    f"📈 Comparar '{kw_term_saved}' no Google Trends Brasil ↗",
+                    f"https://trends.google.com.br/trends/explore?geo=BR&q={urllib.parse.quote_plus(kw_term_saved)}",
+                    use_container_width=True,
+                    help="Abre o comparativo de interesse no Google Trends oficial"
                 )
+            with c_kw_btn2:
+                if "cached_keywords_df" in st.session_state:
+                    csv_kw = st.session_state["cached_keywords_df"].to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        "⬇️ Baixar Matriz de Palavras-Chave em CSV",
+                        data=csv_kw,
+                        file_name="matriz_palavras_chave_seo_geo.csv",
+                        mime="text/csv",
+                        key="btn_dl_kw_csv",
+                        use_container_width=True
+                    )
 
 
     # ==========================================
