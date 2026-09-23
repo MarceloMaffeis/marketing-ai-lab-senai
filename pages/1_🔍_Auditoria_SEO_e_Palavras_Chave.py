@@ -543,25 +543,25 @@ with st.container():
     with col_cfg1:
         target_url = st.text_input(
             "🌐 Domínio ou URL Principal para Auditar:",
-            value="https://www.reed7.com.br/",
-            help="Insira o link completo (com https://) do site da sua empresa ou projeto integrador."
+            value="https://www.sp.senai.br/unidade/sorocaba/",
+            help="Insira o link completo (com https://) do portal do SENAI SP, da sua empresa ou projeto integrador."
         )
     with col_cfg2:
         max_pages = st.slider(
             "📄 Limite de Páginas para Varrer:",
-            min_value=5,
+            min_value=1,
             max_value=50,
-            value=15,
-            step=5,
-            help="Define a profundidade do rastreamento (crawler) para analisar tags, tempo de resposta e conteúdo."
+            value=1,
+            step=1,
+            help="Defina 1 para auditar apenas a página inicial (Home/URL informada) ou aumente para varrer páginas internas do domínio."
         )
 
     with st.expander("👥 Benchmarking Competitivo — Adicionar Concorrentes (Opcional)", expanded=False):
         col_comp1, col_comp2 = st.columns(2)
         with col_comp1:
-            comp_url_1 = st.text_input("Concorrente 1 (URL Completa):", value="https://www.estampariavasconcelos.com.br/")
+            comp_url_1 = st.text_input("Concorrente 1 (URL Completa):", value="", placeholder="Ex: https://www.fatecsp.br/")
         with col_comp2:
-            comp_url_2 = st.text_input("Concorrente 2 (URL Completa):", value="https://oreidoabada.com/")
+            comp_url_2 = st.text_input("Concorrente 2 (URL Completa):", value="", placeholder="Ex: https://www.etec.sp.gov.br/")
 
     run_audit = st.button("🚀 Iniciar Auditoria Completa de SEO, GEO & Local", type="primary", use_container_width=True)
 
@@ -828,7 +828,7 @@ O domínio **{main_domain}** obteve um **SEO Health Score de {health_score}/100*
         st.markdown("### 🧪 Laboratório Interativo de Conteúdo para GEO")
         st.write("Os motores de IA generativa (como Perplexity e ChatGPT) priorizam parágrafos com **definições diretas (40-60 palavras)**, seguidos de **tópicos numerados/estatísticas** e fontes claras. Teste e otimize qualquer conteúdo abaixo:")
 
-        default_input_text = home_row.get('Snippet_Text', '') if 'home_row' in locals() and home_row.get('Snippet_Text') else "A Reed7 é especializada em comunicação visual e brindes corporativos, oferecendo soluções personalizadas para empresas de todos os portes com entrega rápida e alta qualidade."
+        default_input_text = home_row.get('Snippet_Text', '') if 'home_row' in locals() and home_row.get('Snippet_Text') else "O SENAI São Paulo é referência nacional em educação profissional, tecnologia e inovação industrial, oferecendo cursos técnicos, de qualificação e aperfeiçoamento com alta empregabilidade e laboratórios modernos."
         
         user_raw_content = st.text_area(
             "📝 Texto Original do Site para Análise e Otimização GEO:",
@@ -855,7 +855,7 @@ O domínio **{main_domain}** obteve um **SEO Health Score de {health_score}/100*
             1. Definição Direta de 40 a 55 palavras no primeiro parágrafo (resposta clara à pergunta 'o que é / o que faz').
             2. Lista com 3 Destaques Técnicos ou Provas Numéricas em bullet points.
             3. 1 Pergunta Frequente (FAQ) curta com resposta direta de 30 palavras.
-            4. Código JSON-LD Schema.org 'Article' ou 'Product' compacto.
+            4. Código JSON-LD Schema.org 'EducationalOrganization' ou 'Article' compacto.
 
             Formate em Markdown organizado.
             """
@@ -865,24 +865,24 @@ O domínio **{main_domain}** obteve um **SEO Health Score de {health_score}/100*
                     res_geo = f"""### ⚡ Conteúdo Otimizado para GEO (Generative Engine Optimization)
 
 **1. Definição Direta (Extractable QA):**
-A **{main_domain}** é uma fornecedora consolidada de soluções empresariais sob medida, combinando tecnologia ágil, rigor técnico e capacidade produtiva escalável para entregar produtos e serviços de alto padrão corporativo em prazos reduzidos em todo o território nacional.
+O **{main_domain}** é um centro de excelência em formação profissional e tecnologia aplicada, preparando talentos e impulsionando a competitividade industrial por meio de programas práticos, corpo docente altamente qualificado e metodologias alinhadas às demandas reais do mercado de trabalho.
 
 **2. Destaques Técnicos e Métricas:**
-* **Capacidade Operacional:** Processos automatizados que garantem precisão técnica e repetibilidade industrial.
-* **Cobertura Logística:** Distribuição estratégica com rastreamento integral e suporte B2B dedicado.
-* **Conformidade de Qualidade:** Materiais certificados com garantia de durabilidade e sustentabilidade.
+* **Infraestrutura Tecnológica:** Laboratórios e oficinas de padrão industrial com equipamentos modernos.
+* **Índice de Empregabilidade:** Mais de 80% dos concluintes inseridos diretamente no mercado produtivo.
+* **Certificação Oficial:** Diplomas e certificados de prestígio reconhecidos em todo o território nacional.
 
 **3. FAQ Semântico (Para Snippets de IA):**
-* **Qual é o diferencial da {main_domain}?**
-A personalização em escala industrial com controle de qualidade digital e prazos de entrega até 40% menores que a média do mercado corporativo.
+* **Qual é o diferencial do {main_domain}?**
+A metodologia prática focada nas exigências da indústria 4.0, garantindo rápida inserção profissional e desenvolvimento de competências técnicas reais.
 
 **4. Marcação de Dados Estruturados (Schema.org):**
 ```json
 {{
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": "EducationalOrganization",
   "name": "{main_domain}",
-  "description": "Fornecedora de soluções empresariais e produtos personalizados de alta precisão."
+  "description": "Instituição de ensino profissionalizante e inovação tecnológica industrial."
 }}
 ```
 """
@@ -894,7 +894,7 @@ A personalização em escala industrial com controle de qualidade digital e praz
             <div style="background-color: #0f172a; border: 1px solid #38bdf8; border-radius: 10px; padding: 18px; color: #f8fafc; font-family: sans-serif;">
                 <div style="font-size: 0.85rem; color: #38bdf8; font-weight: 600; margin-bottom: 8px;">🌐 SÍNTESE DA IA COM CITAÇÃO DIRETA</div>
                 <div style="font-size: 1.05rem; line-height: 1.6; margin-bottom: 14px;">
-                    Segundo as informações auditadas no portal <strong>{main_domain}</strong>, a empresa se destaca por oferecer soluções corporativas com alta velocidade de atendimento e personalização técnica. Seus principais diferenciais incluem atendimento consultivo e entrega nacional [1].
+                    Segundo as informações auditadas no portal <strong>{main_domain}</strong>, a instituição se destaca por oferecer capacitação profissional e soluções tecnológicas com alta empregabilidade e metodologia prática de ensino [1].
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center; background-color: #1e293b; padding: 8px 12px; border-radius: 6px; width: fit-content; border: 1px solid #334155;">
                     <span style="font-size: 0.8rem; color: #94a3b8;">Fonte [1]:</span>
