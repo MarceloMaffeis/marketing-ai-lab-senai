@@ -8,6 +8,7 @@ if ROOT_DIR not in sys.path:
 import streamlit as st
 from bs4 import BeautifulSoup, Doctype
 import pandas as pd
+import urllib.parse
 from urllib.parse import urljoin, urlparse
 import time
 import re
